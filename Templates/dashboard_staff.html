@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nurse Dashboard — City Hospital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#080c14; color:white; min-height:100vh; }
+        .navbar { background:linear-gradient(135deg,#0d1b2a,#0d2a1b); padding:14px 32px;
+            display:flex; justify-content:space-between; align-items:center;
+            border-bottom:1px solid rgba(56,239,125,0.15); position:sticky; top:0; z-index:100; }
+        .brand { font-size:20px; font-weight:700; color:#38ef7d; }
+        .brand span { color:white; font-weight:300; }
+        .nav-right { display:flex; align-items:center; gap:14px; }
+        .user-name  { font-size:14px; color:rgba(255,255,255,0.85); font-weight:500; }
+        .user-spec  { font-size:12px; color:rgba(255,255,255,0.4); }
+        .role-badge { padding:4px 14px; border-radius:20px; font-size:12px; font-weight:600;
+            background:rgba(56,239,125,0.15); color:#38ef7d; border:1px solid rgba(56,239,125,0.3); }
+        .logout-btn { padding:7px 16px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7);
+            border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit; }
+        .logout-btn:hover { background:rgba(255,80,80,0.2); color:#ff6b6b; }
+        .main { padding:28px 32px; max-width:1400px; margin:0 auto; }
+        .page-title { font-size:24px; font-weight:600; margin-bottom:6px; }
+        .page-title span { color:#38ef7d; }
+        .page-subtitle { font-size:13px; color:rgba(255,255,255,0.35); margin-bottom:28px; }
+        .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
+        .stat-card { background:linear-gradient(135deg,#0d1b2a,#0d2a1b);
+            border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:20px 22px;
+            position:relative; overflow:hidden; transition:transform 0.2s; }
+        .stat-card:hover { transform:translateY(-2px); }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,#38ef7d,#11998e); }
+        .stat-card .s-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
+        .stat-card .s-value { font-size:34px; font-weight:700; color:#38ef7d; }
+        .section { background:#0d1520; border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:24px; margin-bottom:22px; }
+        .section h3 { font-size:16px; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:18px; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        thead tr { background:rgba(56,239,125,0.06); }
+        th { padding:11px 14px; text-align:left; font-size:11px; font-weight:600; color:#38ef7d; text-transform:uppercase; letter-spacing:0.6px; }
+        td { padding:12px 14px; font-size:13px; color:rgba(255,255,255,0.75); border-bottom:1px solid rgba(255,255,255,0.04); }
+        tbody tr:hover td { background:rgba(255,255,255,0.02); }
+        tbody tr:last-child td { border-bottom:none; }
+        .lookup-bar { display:flex; gap:10px; }
+        .lookup-bar input { flex:1; padding:11px 15px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white;
+            font-size:14px; outline:none; font-family:inherit; }
+        .lookup-bar input:focus { border-color:rgba(56,239,125,0.4); }
+        .lookup-bar input::placeholder { color:rgba(255,255,255,0.25); }
+        .btn-success { padding:10px 22px; background:linear-gradient(135deg,#11998e,#38ef7d); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+        .btn-primary { padding:10px 22px; background:linear-gradient(135deg,#00d4ff,#0066ff); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+        .btn-sm { padding:7px 14px; font-size:12px; }
+        .mt-14 { margin-top:14px; }
+        .result-box { margin-top:18px; padding:20px; background:rgba(56,239,125,0.04); border:1px solid rgba(56,239,125,0.12); border-radius:12px; display:none; }
+        .result-name { font-size:18px; font-weight:600; color:#38ef7d; margin-bottom:14px; }
+        .result-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-bottom:16px; }
+        .result-item { font-size:13px; color:rgba(255,255,255,0.6); padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:8px; }
+        .result-item b { color:white; display:block; margin-bottom:2px; font-size:11px; text-transform:uppercase; }
+        .med-box { background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.2); border-radius:10px; padding:12px 16px; margin:12px 0; }
+        .med-box .ml { font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-bottom:4px; }
+        .med-box .mv { font-size:15px; font-weight:600; color:#ffd700; }
+        .sub-section { margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06); }
+        .sub-section h4 { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:12px; font-weight:500; text-transform:uppercase; }
+        .mini-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+        .mini-grid input, .mini-grid textarea { padding:9px 12px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; font-size:13px; outline:none; font-family:inherit; }
+        .mini-grid textarea { grid-column:span 2; resize:vertical; min-height:60px; }
+        .mini-grid input::placeholder, .mini-grid textarea::placeholder { color:rgba(255,255,255,0.25); }
+        .save-ok { color:#38ef7d; font-size:13px; margin-left:10px; display:none; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="brand">🏥 City <span>Hospital</span></div>
+    <div class="nav-right">
+        <div>
+            <div class="user-name">{{ display_name }}</div>
+            <div class="user-spec">{{ specialization }}</div>
+        </div>
+        <span class="role-badge">{{ staff_type | upper }}</span>
+        <button class="logout-btn" onclick="window.location.href='/logout'">↩️ Logout</button>
+    </div>
+</div>
+<div class="main">
+    <div class="page-title">
+        {% if staff_type == 'Nurse' %}🩺 Nurse Dashboard{% else %}👩‍⚕️ Staff Dashboard{% endif %}
+        <span>— {{ display_name }}</span>
+    </div>
+    <div class="page-subtitle">{{ specialization }} · Patient Care Portal</div>
+
+    <div class="stats-row">
+        <div class="stat-card"><div class="s-label">Total Patients</div><div class="s-value">{{ data.patients | length }}</div></div>
+    </div>
+
+    <!-- All Patients -->
+    <div class="section">
+        <h3>🧾 All Patients</h3>
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Name</th><th>Disease</th><th>Ward</th><th>Current Medication</th><th>Doctor</th><th>History</th></tr></thead>
+            <tbody>
+            {% for p in data.patients %}
+            <tr>
+                <td style="font-weight:500;color:white;">{{ p.name }}</td>
+                <td>{{ p.disease }}</td>
+                <td>{{ p.ward }}</td>
+                <td style="color:#ffd700;">{{ p.medication }}</td>
+                <td>{{ p.doctor }}</td>
+                <td style="color:rgba(255,255,255,0.45);">{{ p.history }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- Lookup -->
+    <div class="section">
+        <h3>📡 Patient Lookup — RFID / ID</h3>
+        <div class="lookup-bar">
+            <input id="manualInput" placeholder="Enter RFID tag or Patient ID...">
+            <button class="btn-success" onclick="search()">Search</button>
+        </div>
+        <div class="result-box" id="rfid-result">
+            <div class="result-name" id="r-name"></div>
+            <div class="result-grid">
+                <div class="result-item"><b>Disease</b><span id="r-disease"></span></div>
+                <div class="result-item"><b>Ward</b><span id="r-ward"></span></div>
+                <div class="result-item"><b>History</b><span id="r-history"></span></div>
+                <div class="result-item"><b>Doctor</b><span id="r-doctor"></span></div>
+            </div>
+            <div class="med-box">
+                <div class="ml">💊 Current Medication</div>
+                <div class="mv" id="r-med"></div>
+            </div>
+            <div class="sub-section">
+                <h4>💓 Latest Vitals</h4>
+                <div id="r-vitals" style="font-size:13px;color:rgba(255,255,255,0.6);padding:6px 0;"></div>
+            </div>
+            <div class="sub-section">
+                <h4>➕ Record Vitals</h4>
+                <div class="mini-grid">
+                    <input id="v-bp"     placeholder="Blood Pressure (e.g. 120/80)">
+                    <input id="v-pulse"  placeholder="Pulse (e.g. 72 bpm)">
+                    <input id="v-temp"   placeholder="Temperature (e.g. 98.6°F)">
+                    <input id="v-oxygen" placeholder="Oxygen % (e.g. 99)">
+                </div>
+                <button class="btn-success mt-14" onclick="addVitals()">💓 Save Vitals</button>
+                <span class="save-ok" id="v-success">✅ Saved!</span>
+            </div>
+            <div class="sub-section">
+                <h4>💊 Update Medication</h4>
+                <div class="mini-grid" style="grid-template-columns:1fr auto;">
+                    <input id="upd-med" placeholder="Updated medication">
+                    <button class="btn-primary btn-sm" onclick="updateMedication()" style="white-space:nowrap;">Update</button>
+                </div>
+                <div id="med-success" style="color:#38ef7d;font-size:12px;margin-top:8px;display:none;">✅ Medication updated!</div>
+            </div>
+            <div class="sub-section">
+                <h4>🖼️ Add Scan Result</h4>
+                <div class="mini-grid">
+                    <input id="sc-type" placeholder="Scan type (X-Ray, Blood Test...)">
+                    <textarea id="sc-result" placeholder="Scan findings"></textarea>
+                </div>
+                <button class="btn-primary mt-14" onclick="addScan()">🔬 Save Scan</button>
+                <span class="save-ok" id="sc-success">✅ Saved!</span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+let currentPatientId = null;
+function search() {
+    let value = document.getElementById('manualInput').value.trim();
+    if (!value) return;
+    fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:value}) })
+    .then(r => r.json()).then(data => {
+        let box = document.getElementById('rfid-result');
+        if (data.error) { box.style.display='block'; box.innerHTML="<p style='color:#ff6b6b;'>❌ Not found.</p>"; return; }
+        currentPatientId = data.id; box.style.display='block';
+        document.getElementById('r-name').innerText    = '👤 ' + data.name;
+        document.getElementById('r-disease').innerText = data.disease  || '—';
+        document.getElementById('r-ward').innerText    = data.ward     || '—';
+        document.getElementById('r-history').innerText = data.history  || '—';
+        document.getElementById('r-doctor').innerText  = data.doctor   || '—';
+        document.getElementById('r-med').innerText     = data.medication || '—';
+        let vBox = document.getElementById('r-vitals');
+        vBox.innerHTML = data.vitals
+            ? '🩸 BP: <b>'+data.vitals.bp+'</b> | 💗 Pulse: <b>'+data.vitals.pulse+'</b> | 🌡️ Temp: <b>'+data.vitals.temperature+'</b> | 💨 O₂: <b>'+data.vitals.oxygen+'%</b>'
+            : '<span style="color:rgba(255,255,255,0.3);">No vitals yet.</span>';
+    });
+}
+function addVitals() {
+    if (!currentPatientId) return alert('Search a patient first.');
+    fetch('/add_vitals', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ patient_id:currentPatientId,
+            bp:document.getElementById('v-bp').value, pulse:document.getElementById('v-pulse').value,
+            temperature:document.getElementById('v-temp').value, oxygen:document.getElementById('v-oxygen').value })
+    }).then(() => { document.getElementById('v-success').style.display='inline'; });
+}
+function updateMedication() {
+    if (!currentPatientId) return alert('Search a patient first.');
+    fetch('/update_medication', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({patient_id:currentPatientId, medication:document.getElementById('upd-med').value})
+    }).then(() => { document.getElementById('med-success').style.display='block'; });
+}
+function addScan() {
+    if (!currentPatientId) return alert('Search a patient first.');
+    fetch('/add_scan', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({patient_id:currentPatientId,
+            scan_type:document.getElementById('sc-type').value, scan_result:document.getElementById('sc-result').value})
+    }).then(() => { document.getElementById('sc-success').style.display='inline'; });
+}
+</script>
+</body>
+</html>

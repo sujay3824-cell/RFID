@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pharmacist Dashboard — City Hospital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#080c14; color:white; min-height:100vh; }
+        .navbar { background:linear-gradient(135deg,#0d1b2a,#1a0d2e); padding:14px 32px;
+            display:flex; justify-content:space-between; align-items:center;
+            border-bottom:1px solid rgba(241,7,163,0.2); position:sticky; top:0; z-index:100; }
+        .brand { font-size:20px; font-weight:700; color:#f107a3; }
+        .brand span { color:white; font-weight:300; }
+        .nav-right { display:flex; align-items:center; gap:14px; }
+        .user-name { font-size:14px; color:rgba(255,255,255,0.85); font-weight:500; }
+        .role-badge { padding:4px 14px; border-radius:20px; font-size:12px; font-weight:600;
+            background:rgba(241,7,163,0.15); color:#f107a3; border:1px solid rgba(241,7,163,0.3); }
+        .logout-btn { padding:7px 16px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7);
+            border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit; }
+        .logout-btn:hover { background:rgba(255,80,80,0.2); color:#ff6b6b; }
+        .main { padding:28px 32px; max-width:1200px; margin:0 auto; }
+        .page-title { font-size:24px; font-weight:600; margin-bottom:6px; }
+        .page-title span { color:#f107a3; }
+        .page-subtitle { font-size:13px; color:rgba(255,255,255,0.35); margin-bottom:28px; }
+        .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
+        .stat-card { background:linear-gradient(135deg,#0d1b2a,#1a0d2e);
+            border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:20px 22px;
+            position:relative; overflow:hidden; transition:transform 0.2s; }
+        .stat-card:hover { transform:translateY(-2px); }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,#f107a3,#7b2ff7); }
+        .stat-card .s-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:10px;
+            text-transform:uppercase; letter-spacing:0.5px; }
+        .stat-card .s-value { font-size:34px; font-weight:700; color:#f107a3; }
+        .section { background:#0d1520; border:1px solid rgba(255,255,255,0.06);
+            border-radius:16px; padding:24px; margin-bottom:22px; }
+        .section h3 { font-size:16px; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:18px; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        thead tr { background:rgba(241,7,163,0.06); }
+        th { padding:11px 14px; text-align:left; font-size:11px; font-weight:600;
+            color:#f107a3; text-transform:uppercase; letter-spacing:0.6px; }
+        td { padding:12px 14px; font-size:13px; color:rgba(255,255,255,0.75);
+            border-bottom:1px solid rgba(255,255,255,0.04); }
+        tbody tr:hover td { background:rgba(255,255,255,0.02); }
+        tbody tr:last-child td { border-bottom:none; }
+        .lookup-bar { display:flex; gap:10px; }
+        .lookup-bar input { flex:1; padding:11px 15px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white;
+            font-size:14px; outline:none; font-family:inherit; }
+        .lookup-bar input::placeholder { color:rgba(255,255,255,0.25); }
+        .btn-purple { padding:10px 22px; background:linear-gradient(135deg,#f107a3,#7b2ff7);
+            border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+        .btn-sm { padding:7px 14px; font-size:12px; }
+        .mt-14 { margin-top:14px; }
+        .result-box { margin-top:18px; padding:22px; background:rgba(241,7,163,0.04);
+            border:1px solid rgba(241,7,163,0.15); border-radius:12px; display:none; }
+        .result-name { font-size:20px; font-weight:700; color:#f107a3; margin-bottom:16px; }
+        .med-big { background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.25);
+            border-radius:12px; padding:16px 20px; margin-bottom:16px; }
+        .med-big .ml { font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase;
+            letter-spacing:0.4px; margin-bottom:6px; }
+        .med-big .mv { font-size:20px; font-weight:700; color:#ffd700; }
+        .info-row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+        .info-chip { background:rgba(255,255,255,0.05); border-radius:8px; padding:8px 14px; font-size:13px; }
+        .info-chip b { color:white; display:block; font-size:11px; color:rgba(255,255,255,0.4);
+            text-transform:uppercase; margin-bottom:3px; }
+        .update-section { margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06); }
+        .update-section h4 { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:12px;
+            text-transform:uppercase; letter-spacing:0.4px; }
+        .update-row { display:flex; gap:10px; }
+        .update-row input { flex:1; padding:10px 13px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white;
+            font-size:13px; outline:none; font-family:inherit; }
+        .update-row input::placeholder { color:rgba(255,255,255,0.25); }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="brand">🏥 City <span>Hospital</span></div>
+    <div class="nav-right">
+        <div class="user-name">{{ display_name }}</div>
+        <span class="role-badge">PHARMACIST</span>
+        <button class="logout-btn" onclick="window.location.href='/logout'">↩️ Logout</button>
+    </div>
+</div>
+<div class="main">
+    <div class="page-title">💊 Pharmacist Dashboard <span>— Medication Control</span></div>
+    <div class="page-subtitle">Pharmacy · Medication Management Portal</div>
+
+    <div class="stats-row">
+        <div class="stat-card"><div class="s-label">Total Patients</div><div class="s-value">{{ data.patients | length }}</div></div>
+    </div>
+
+    <!-- All Medications -->
+    <div class="section">
+        <h3>💊 All Patient Medications</h3>
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Patient</th><th>Disease</th><th>Ward</th><th>Current Medication</th><th>Doctor</th></tr></thead>
+            <tbody>
+            {% for p in data.patients %}
+            <tr>
+                <td style="font-weight:500;color:white;">{{ p.name }}</td>
+                <td>{{ p.disease }}</td><td>{{ p.ward }}</td>
+                <td style="color:#ffd700;font-weight:500;">{{ p.medication }}</td>
+                <td>{{ p.doctor }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- RFID Lookup -->
+    <div class="section">
+        <h3>📡 Patient Lookup — Scan RFID or Enter ID</h3>
+        <div class="lookup-bar">
+            <input id="manualInput" placeholder="Enter RFID tag or Patient ID...">
+            <button class="btn-purple" onclick="search()">Search</button>
+        </div>
+        <div class="result-box" id="rfid-result">
+            <div class="result-name" id="r-name"></div>
+            <div class="info-row">
+                <div class="info-chip"><b>Disease</b><span id="r-disease"></span></div>
+                <div class="info-chip"><b>Ward</b><span id="r-ward"></span></div>
+                <div class="info-chip"><b>Doctor</b><span id="r-doctor"></span></div>
+            </div>
+            <div class="med-big">
+                <div class="ml">💊 Current Medication</div>
+                <div class="mv" id="r-med"></div>
+            </div>
+            <div class="update-section">
+                <h4>Update Medication</h4>
+                <div class="update-row">
+                    <input id="upd-med" placeholder="Enter updated medication (e.g. Amoxicillin 250mg — 3x daily)">
+                    <button class="btn-purple btn-sm" onclick="updateMedication()" style="white-space:nowrap;">✅ Update</button>
+                </div>
+                <div id="med-success" style="color:#38ef7d;font-size:13px;margin-top:10px;display:none;">✅ Medication updated successfully!</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+let currentPatientId = null;
+function search() {
+    let value = document.getElementById('manualInput').value.trim();
+    if (!value) return;
+    fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:value}) })
+    .then(r => r.json()).then(data => {
+        let box = document.getElementById('rfid-result');
+        if (data.error) { box.style.display='block'; box.innerHTML="<p style='color:#ff6b6b;'>❌ Patient not found.</p>"; return; }
+        currentPatientId = data.id; box.style.display='block';
+        document.getElementById('r-name').innerText = '👤 ' + data.name;
+        document.getElementById('r-disease').innerText = data.disease || '—';
+        document.getElementById('r-ward').innerText = data.ward || '—';
+        document.getElementById('r-doctor').innerText = data.doctor || '—';
+        document.getElementById('r-med').innerText = data.medication || '—';
+    });
+}
+function updateMedication() {
+    if (!currentPatientId) return alert('Search a patient first.');
+    fetch('/update_medication', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({patient_id:currentPatientId, medication:document.getElementById('upd-med').value})
+    }).then(() => {
+        document.getElementById('med-success').style.display='block';
+        document.getElementById('r-med').innerText = document.getElementById('upd-med').value;
+    });
+}
+</script>
+</body>
+</html>

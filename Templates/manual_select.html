@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Access — City Hospital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif;
+            background:radial-gradient(ellipse at top,#0d2137 0%,#080c14 70%);
+            min-height:100vh; padding:80px 20px 40px; }
+        .top-bar { position:fixed; top:0; left:0; right:0;
+            background:rgba(13,27,42,0.9); backdrop-filter:blur(10px);
+            border-bottom:1px solid rgba(0,212,255,0.1);
+            padding:14px 30px; display:flex; justify-content:space-between; align-items:center; z-index:100; }
+        .brand { font-size:18px; font-weight:700; color:#00d4ff; }
+        .back-btn { padding:6px 14px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.6);
+            border-radius:8px; cursor:pointer; font-size:12px; font-family:inherit; }
+        .back-btn:hover { background:rgba(255,255,255,0.1); color:white; }
+        .content { max-width:800px; margin:0 auto; text-align:center; }
+        .title    { font-size:28px; font-weight:700; color:white; margin-bottom:8px; }
+        .subtitle { font-size:14px; color:rgba(255,255,255,0.35); margin-bottom:36px; }
+        .roles-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px; margin-bottom:32px; }
+        .role-card { background:rgba(255,255,255,0.04); border:2px solid rgba(255,255,255,0.07);
+            border-radius:18px; padding:24px 16px; cursor:pointer; transition:all 0.25s; text-align:center; }
+        .role-card:hover { transform:translateY(-3px); }
+        .role-card[data-role="doctor"]:hover,       .role-card[data-role="doctor"].active       { border-color:rgba(0,212,255,0.5);   background:rgba(0,212,255,0.06);   }
+        .role-card[data-role="patient"]:hover,      .role-card[data-role="patient"].active      { border-color:rgba(255,215,0,0.5);   background:rgba(255,215,0,0.06);   }
+        .role-card[data-role="nurse"]:hover,        .role-card[data-role="nurse"].active        { border-color:rgba(56,239,125,0.5);  background:rgba(56,239,125,0.06);  }
+        .role-card[data-role="pharmacist"]:hover,   .role-card[data-role="pharmacist"].active   { border-color:rgba(241,7,163,0.5);   background:rgba(241,7,163,0.06);   }
+        .role-card[data-role="receptionist"]:hover, .role-card[data-role="receptionist"].active { border-color:rgba(123,47,247,0.5);  background:rgba(123,47,247,0.06);  }
+        .role-icon { font-size:38px; margin-bottom:10px; }
+        .role-name { font-size:14px; font-weight:600; color:white; }
+        .role-sub  { font-size:11px; color:rgba(255,255,255,0.35); margin-top:4px; }
+        .id-entry { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+            border-radius:18px; padding:28px; display:none; text-align:left; }
+        .id-entry h3 { font-size:16px; font-weight:600; color:white; margin-bottom:18px; text-align:center; }
+        .id-input-row { display:flex; gap:12px; }
+        .id-input-row input { flex:1; padding:13px 16px;
+            background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+            border-radius:12px; color:white; font-size:15px; outline:none; font-family:inherit; transition:all 0.2s; }
+        .id-input-row input:focus { border-color:rgba(0,212,255,0.5); background:rgba(0,212,255,0.04); }
+        .id-input-row input::placeholder { color:rgba(255,255,255,0.25); }
+        .id-input-row button { padding:13px 24px;
+            background:linear-gradient(135deg,#00d4ff,#0066ff);
+            border:none; border-radius:12px; color:white;
+            font-weight:600; font-size:14px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+        .id-input-row button:hover { opacity:0.88; }
+        .hint { margin-top:10px; font-size:12px; color:rgba(255,255,255,0.25); text-align:center; }
+        .error-msg { color:#ff6b6b; font-size:13px; margin-top:14px; text-align:center; display:none;
+            background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); border-radius:10px; padding:10px; }
+        .loading-msg { color:rgba(255,255,255,0.5); font-size:13px; margin-top:14px; text-align:center; display:none; }
+        .clock { margin-top:30px; font-size:12px; color:rgba(255,255,255,0.2); text-align:center; }
+    </style>
+</head>
+<body>
+<div class="top-bar">
+    <div class="brand">🏥 City Hospital — Manual Mode</div>
+    <button class="back-btn" onclick="window.location.href='/mode'">← Back</button>
+</div>
+<div class="content">
+    <div class="title">Manual Access</div>
+    <div class="subtitle">Select your role, then enter your username or ID</div>
+    <div class="roles-grid">
+        
+        <div class="role-card" data-role="doctor"       onclick="selectRole(this,'doctor')">
+            <div class="role-icon">🩺</div><div class="role-name">Doctor</div><div class="role-sub">Patient care</div>
+        </div>
+        <div class="role-card" data-role="patient"      onclick="selectRole(this,'patient')">
+            <div class="role-icon">🧑</div><div class="role-name">Patient</div><div class="role-sub">Health records</div>
+        </div>
+        <div class="role-card" data-role="nurse"        onclick="selectRole(this,'nurse')">
+            <div class="role-icon">👩‍⚕️</div><div class="role-name">Nurse</div><div class="role-sub">Vitals & care</div>
+        </div>
+        <div class="role-card" data-role="pharmacist"   onclick="selectRole(this,'pharmacist')">
+            <div class="role-icon">💊</div><div class="role-name">Pharmacist</div><div class="role-sub">Medication</div>
+        </div>
+        <div class="role-card" data-role="receptionist" onclick="selectRole(this,'receptionist')">
+            <div class="role-icon">🗂️</div><div class="role-name">Receptionist</div><div class="role-sub">Admissions</div>
+        </div>
+    </div>
+    <div class="id-entry" id="id-entry">
+        <h3 id="id-entry-title">Enter your Username or ID</h3>
+        <div class="id-input-row">
+            <input type="text" id="user-id" placeholder="Type your username or ID..." autocomplete="off">
+            <button onclick="submitManual()">Access →</button>
+        </div>
+        <p class="hint">Example: dr.kumar | nurse.rani | asha | receptionist.ravi</p>
+        <div class="error-msg"   id="error-msg">❌ User not found or role mismatch. Please try again.</div>
+        <div class="loading-msg" id="loading-msg">⏳ Verifying...</div>
+    </div>
+    <div class="clock" id="clock"></div>
+</div>
+<script>
+let selectedRole = null;
+function selectRole(card, role) {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    selectedRole = role;
+    let titles = {
+        admin:'👨‍💼 Enter Admin Username', doctor:'🩺 Enter Doctor Username',
+        patient:'🧑 Enter Patient Username or ID', nurse:'👩‍⚕️ Enter Nurse Username',
+        pharmacist:'💊 Enter Pharmacist Username', receptionist:'🗂️ Enter Receptionist Username'
+    };
+    document.getElementById('id-entry-title').innerText = titles[role] || 'Enter Username';
+    document.getElementById('id-entry').style.display = 'block';
+    document.getElementById('user-id').value = '';
+    document.getElementById('error-msg').style.display   = 'none';
+    document.getElementById('loading-msg').style.display = 'none';
+    setTimeout(() => document.getElementById('user-id').focus(), 100);
+    document.getElementById('id-entry').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function submitManual() {
+    if (!selectedRole) return;
+    let userId = document.getElementById('user-id').value.trim();
+    if (!userId) return;
+    document.getElementById('loading-msg').style.display = 'block';
+    document.getElementById('error-msg').style.display   = 'none';
+    fetch('/manual_login', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({id: userId, role: selectedRole})
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('loading-msg').style.display = 'none';
+        if (data.status === 'ok') {
+            window.location.href = data.redirect;
+        } else {
+            document.getElementById('error-msg').style.display = 'block';
+            document.getElementById('user-id').value = '';
+            document.getElementById('user-id').focus();
+        }
+    })
+    .catch(() => {
+        document.getElementById('loading-msg').style.display = 'none';
+        document.getElementById('error-msg').style.display   = 'block';
+    });
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter') submitManual(); });
+function tick() { document.getElementById('clock').innerText = new Date().toLocaleString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+tick(); setInterval(tick,1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Health — City Hospital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#080c14; color:white; min-height:100vh; }
+        .navbar { background:linear-gradient(135deg,#0d1b2a,#1a1500); padding:14px 32px;
+            display:flex; justify-content:space-between; align-items:center;
+            border-bottom:1px solid rgba(255,215,0,0.15); position:sticky; top:0; z-index:100; }
+        .brand { font-size:20px; font-weight:700; color:#ffd700; }
+        .brand span { color:white; font-weight:300; }
+        .nav-right { display:flex; align-items:center; gap:14px; }
+        .user-name { font-size:14px; color:rgba(255,255,255,0.85); font-weight:500; }
+        .role-badge { padding:4px 14px; border-radius:20px; font-size:12px; font-weight:600;
+            background:rgba(255,215,0,0.15); color:#ffd700; border:1px solid rgba(255,215,0,0.3); }
+        .logout-btn { padding:7px 16px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7);
+            border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit; }
+        .logout-btn:hover { background:rgba(255,80,80,0.2); color:#ff6b6b; }
+        .main { padding:28px 32px; max-width:1000px; margin:0 auto; }
+        .page-title { font-size:24px; font-weight:600; margin-bottom:6px; }
+        .page-title span { color:#ffd700; }
+        .page-subtitle { font-size:13px; color:rgba(255,255,255,0.35); margin-bottom:28px; }
+        .info-card { background:linear-gradient(135deg,#0d1b2a,#1a1500);
+            border:1px solid rgba(255,215,0,0.12); border-radius:20px; padding:28px;
+            margin-bottom:22px; position:relative; overflow:hidden; }
+        .info-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px;
+            background:linear-gradient(90deg,#ffd700,#ff8c00); }
+        .patient-header { display:flex; align-items:center; gap:20px; margin-bottom:24px; padding-bottom:20px;
+            border-bottom:1px solid rgba(255,255,255,0.06); }
+        .patient-avatar { width:64px; height:64px; border-radius:50%;
+            background:linear-gradient(135deg,#ffd700,#ff8c00);
+            display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+        .patient-name { font-size:22px; font-weight:700; color:white; }
+        .patient-id { font-size:13px; color:rgba(255,255,255,0.4); margin-top:4px; }
+        .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+        .info-item { background:rgba(255,255,255,0.03); border-radius:12px; padding:14px 16px; }
+        .info-item .il { font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase;
+            letter-spacing:0.4px; margin-bottom:6px; font-weight:500; }
+        .info-item .iv { font-size:15px; color:rgba(255,255,255,0.9); font-weight:500; }
+        .info-item.highlight { background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.15); }
+        .info-item.highlight .iv { color:#ffd700; font-size:16px; }
+        .info-item.blue { background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.15); }
+        .info-item.blue .iv { color:#00d4ff; }
+        .section { background:#0d1520; border:1px solid rgba(255,255,255,0.06);
+            border-radius:16px; padding:24px; margin-bottom:22px; }
+        .section h3 { font-size:16px; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:18px; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        thead tr { background:rgba(255,215,0,0.06); }
+        th { padding:11px 14px; text-align:left; font-size:11px; font-weight:600;
+            color:#ffd700; text-transform:uppercase; letter-spacing:0.6px; }
+        td { padding:12px 14px; font-size:13px; color:rgba(255,255,255,0.75);
+            border-bottom:1px solid rgba(255,255,255,0.04); }
+        tbody tr:hover td { background:rgba(255,255,255,0.02); }
+        tbody tr:last-child td { border-bottom:none; }
+        .vitals-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; }
+        .vital-card { background:rgba(255,255,255,0.03); border-radius:12px; padding:14px 16px; text-align:center; }
+        .vital-card .vl { font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase;
+            letter-spacing:0.4px; margin-bottom:6px; }
+        .vital-card .vv { font-size:20px; font-weight:700; }
+        .billing-total { background:linear-gradient(135deg,rgba(56,239,125,0.1),rgba(17,153,142,0.1));
+            border:1px solid rgba(56,239,125,0.2); border-radius:12px; padding:16px 20px;
+            display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
+        .billing-total .bt-label { font-size:14px; color:rgba(255,255,255,0.6); }
+        .billing-total .bt-amount { font-size:22px; font-weight:700; color:#38ef7d; }
+        .empty { color:rgba(255,255,255,0.3); font-size:13px; padding:8px 0; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="brand">🏥 City <span>Hospital</span></div>
+    <div class="nav-right">
+        <div class="user-name">{{ display_name }}</div>
+        <span class="role-badge">PATIENT</span>
+        <button class="logout-btn" onclick="window.location.href='/logout'">↩️ Logout</button>
+    </div>
+</div>
+<div class="main">
+    <div class="page-title">🧑 My Health Dashboard <span>— {{ display_name }}</span></div>
+    <div class="page-subtitle">Patient Portal · View your health records</div>
+
+    {% if data.patient %}
+    <!-- Patient Info Card -->
+    <div class="info-card">
+        <div class="patient-header">
+            <div class="patient-avatar">🧑</div>
+            <div>
+                <div class="patient-name">{{ data.patient.name }}</div>
+                <div class="patient-id">Patient ID: {{ data.patient.id }} · RFID: {{ data.patient.rfid }}</div>
+            </div>
+        </div>
+        <div class="info-grid">
+            <div class="info-item highlight"><div class="il">💊 Current Medication</div><div class="iv">{{ data.patient.medication }}</div></div>
+            <div class="info-item"><div class="il">🦠 Disease / Diagnosis</div><div class="iv">{{ data.patient.disease }}</div></div>
+            <div class="info-item"><div class="il">🏨 Ward</div><div class="iv">{{ data.patient.ward }}</div></div>
+            <div class="info-item"><div class="il">🩺 Assigned Doctor</div><div class="iv">{{ data.patient.doctor }}</div></div>
+            <div class="info-item"><div class="il">📅 Admitted On</div><div class="iv">{{ data.patient.admitted_date }}</div></div>
+            <div class="info-item"><div class="il">🚪 Discharge Date</div><div class="iv">{{ data.patient.discharge_date if data.patient.discharge_date and data.patient.discharge_date != '-' else 'Still Admitted' }}</div></div>
+            <div class="info-item blue"><div class="il">🗓️ Next Appointment</div><div class="iv">{{ data.patient.next_appointment }}</div></div>
+            <div class="info-item"><div class="il">📋 Visit History</div><div class="iv">{{ data.patient.history }}</div></div>
+        </div>
+    </div>
+
+    <!-- Prescriptions -->
+    <div class="section">
+        <h3>💊 My Prescriptions</h3>
+        {% if data.prescriptions %}
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Medicine</th><th>Dosage</th><th>Duration</th><th>Notes</th><th>Prescribed By</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for p in data.prescriptions %}
+            <tr>
+                <td style="font-weight:500;color:white;">{{ p.medicine }}</td>
+                <td style="color:#ffd700;">{{ p.dosage }}</td>
+                <td>{{ p.duration }}</td>
+                <td style="color:rgba(255,255,255,0.5);">{{ p.notes }}</td>
+                <td>{{ p.prescribed_by }}</td>
+                <td>{{ p.prescribed_at }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}<p class="empty">No prescriptions yet.</p>{% endif %}
+    </div>
+
+    <!-- Scan Reports -->
+    <div class="section">
+        <h3>🔬 My Scan Reports</h3>
+        {% if data.scans %}
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Scan Type</th><th>Result / Findings</th><th>Done By</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for s in data.scans %}
+            <tr>
+                <td style="font-weight:500;color:white;">{{ s.scan_type }}</td>
+                <td>{{ s.scan_result }}</td>
+                <td>{{ s.uploaded_by }}</td>
+                <td>{{ s.uploaded_at }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}<p class="empty">No scan reports yet.</p>{% endif %}
+    </div>
+
+    <!-- Vitals -->
+    <div class="section">
+        <h3>💓 My Vitals History</h3>
+        {% if data.vitals %}
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Blood Pressure</th><th>Pulse</th><th>Temperature</th><th>Oxygen %</th><th>Recorded By</th><th>Time</th></tr></thead>
+            <tbody>
+            {% for v in data.vitals %}
+            <tr>
+                <td style="color:#ff6b6b;">{{ v.bp }}</td>
+                <td>{{ v.pulse }}</td>
+                <td>{{ v.temperature }}</td>
+                <td style="color:#38ef7d;">{{ v.oxygen }}%</td>
+                <td>{{ v.recorded_by }}</td>
+                <td style="color:rgba(255,255,255,0.5);">{{ v.recorded_at }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}<p class="empty">No vitals recorded yet.</p>{% endif %}
+    </div>
+
+    <!-- Bills -->
+    <div class="section">
+        <h3>💰 My Bills</h3>
+        {% if data.billing %}
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Description</th><th>Amount</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for b in data.billing %}
+            <tr>
+                <td>{{ b.description }}</td>
+                <td style="color:#38ef7d;font-weight:600;">₹{{ b.amount | int }}</td>
+                <td>{{ b.date }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        <div class="billing-total">
+            <span class="bt-label">Total Amount Due</span>
+            <span class="bt-amount">₹{{ data.billing | sum(attribute='amount') | int }}</span>
+        </div>
+        {% else %}<p class="empty">No bills yet.</p>{% endif %}
+    </div>
+
+    {% else %}
+    <p style="color:rgba(255,255,255,0.4);">No patient record found for your account.</p>
+    {% endif %}
+</div>
+</body>
+</html>

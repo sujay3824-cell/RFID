@@ -1,0 +1,343 @@
+<<!DOCTYPE html>
+<html>
+<head>
+    <title>Receptionist Dashboard — City Hospital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#080c14; color:white; min-height:100vh; }
+        .navbar { background:linear-gradient(135deg,#0d1b2a,#1a0a2e); padding:14px 32px;
+            display:flex; justify-content:space-between; align-items:center;
+            border-bottom:1px solid rgba(123,47,247,0.2); position:sticky; top:0; z-index:100; }
+        .brand { font-size:20px; font-weight:700; color:#a78bfa; }
+        .brand span { color:white; font-weight:300; }
+        .nav-right { display:flex; align-items:center; gap:14px; }
+        .user-name { font-size:14px; color:rgba(255,255,255,0.85); font-weight:500; }
+        .role-badge { padding:4px 14px; border-radius:20px; font-size:12px; font-weight:600;
+            background:rgba(123,47,247,0.15); color:#a78bfa; border:1px solid rgba(123,47,247,0.3); }
+        .logout-btn { padding:7px 16px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7);
+            border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit; }
+        .logout-btn:hover { background:rgba(255,80,80,0.2); color:#ff6b6b; }
+        .main { padding:28px 32px; max-width:1400px; margin:0 auto; }
+        .page-title { font-size:24px; font-weight:600; margin-bottom:6px; }
+        .page-title span { color:#a78bfa; }
+        .page-subtitle { font-size:13px; color:rgba(255,255,255,0.35); margin-bottom:28px; }
+        .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
+        .stat-card { background:linear-gradient(135deg,#0d1b2a,#1a0a2e);
+            border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:20px 22px;
+            position:relative; overflow:hidden; transition:transform 0.2s; }
+        .stat-card:hover { transform:translateY(-2px); }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,#a78bfa,#7b2ff7); }
+        .stat-card .s-icon  { position:absolute; right:18px; top:18px; font-size:22px; opacity:0.25; }
+        .stat-card .s-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
+        .stat-card .s-value { font-size:34px; font-weight:700; color:#a78bfa; line-height:1; }
+        .section { background:#0d1520; border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:24px; margin-bottom:22px; }
+        .section h3 { font-size:16px; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:18px; }
+        .table-wrap { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        thead tr { background:rgba(123,47,247,0.08); }
+        th { padding:11px 14px; text-align:left; font-size:11px; font-weight:600;
+            color:#a78bfa; text-transform:uppercase; letter-spacing:0.6px; white-space:nowrap; }
+        td { padding:12px 14px; font-size:13px; color:rgba(255,255,255,0.75);
+            border-bottom:1px solid rgba(255,255,255,0.04); white-space:nowrap; }
+        tbody tr:hover td { background:rgba(255,255,255,0.02); }
+        tbody tr:last-child td { border-bottom:none; }
+        .tag { display:inline-block; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:600; }
+        .tag-admin   { background:rgba(255,107,107,0.15); color:#ff6b6b; }
+        .tag-doctor  { background:rgba(0,212,255,0.15);   color:#00d4ff; }
+        .tag-staff   { background:rgba(56,239,125,0.15);  color:#38ef7d; }
+        .tag-patient { background:rgba(255,215,0,0.15);   color:#ffd700; }
+        .tag-admitted    { background:rgba(56,239,125,0.15); color:#38ef7d; }
+        .tag-discharged  { background:rgba(255,107,107,0.15); color:#ff6b6b; }
+        .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:12px; }
+        .form-group label { display:block; font-size:11px; color:rgba(255,255,255,0.4);
+            margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
+        .form-group input, .form-group select {
+            width:100%; padding:10px 13px; background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white;
+            font-size:13px; outline:none; font-family:inherit; transition:border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color:rgba(123,47,247,0.4); }
+        .form-group input::placeholder { color:rgba(255,255,255,0.25); }
+        .form-group select option { background:#0d1520; }
+        .btn-purple  { padding:10px 22px; background:linear-gradient(135deg,#7b2ff7,#a78bfa); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+        .btn-primary { padding:10px 22px; background:linear-gradient(135deg,#00d4ff,#0066ff); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+        .btn-success { padding:10px 22px; background:linear-gradient(135deg,#11998e,#38ef7d); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+        .btn-danger  { padding:5px 12px; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.3); color:#ff6b6b; border-radius:7px; cursor:pointer; font-size:12px; font-family:inherit; }
+        .btn-danger:hover { background:rgba(255,107,107,0.2); }
+        .btn-sm { padding:7px 14px; font-size:12px; }
+        .mt-14 { margin-top:14px; }
+        .success-msg { color:#38ef7d; font-size:13px; margin-top:10px; display:none; }
+        .billing-total { background:linear-gradient(135deg,rgba(56,239,125,0.1),rgba(17,153,142,0.1));
+            border:1px solid rgba(56,239,125,0.2); border-radius:12px; padding:16px 20px;
+            display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
+        .billing-total .bt-label { font-size:14px; color:rgba(255,255,255,0.6); }
+        .billing-total .bt-amount { font-size:22px; font-weight:700; color:#38ef7d; }
+        .patient-summary { background:rgba(123,47,247,0.05); border:1px solid rgba(123,47,247,0.15);
+            border-radius:12px; padding:16px 20px; margin-top:16px; display:none; }
+        .patient-summary h4 { color:#a78bfa; margin-bottom:12px; font-size:14px; }
+        .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .summary-item { font-size:13px; color:rgba(255,255,255,0.65); padding:6px 0; }
+        .summary-item b { color:white; display:block; font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-bottom:2px; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="brand">🏥 City <span>Hospital</span></div>
+    <div class="nav-right">
+        <div class="user-name">{{ display_name }}</div>
+        <span class="role-badge">RECEPTIONIST</span>
+        <button class="logout-btn" onclick="window.location.href='/logout'">↩️ Logout</button>
+    </div>
+</div>
+<div class="main">
+    <div class="page-title">🗂️ Receptionist Dashboard <span>— Patient & Staff Management</span></div>
+    <div class="page-subtitle">Front Desk · Admissions · Billing · Staff Management</div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card"><div class="s-icon">🏥</div><div class="s-label">Total Patients</div><div class="s-value">{{ data.patients | length }}</div></div>
+        <div class="stat-card"><div class="s-icon">✅</div><div class="s-label">Admitted</div><div class="s-value">{{ data.patients | selectattr('status','equalto','admitted') | list | length }}</div></div>
+        <div class="stat-card"><div class="s-icon">🚪</div><div class="s-label">Discharged</div><div class="s-value">{{ data.patients | selectattr('status','equalto','discharged') | list | length }}</div></div>
+        <div class="stat-card"><div class="s-icon">👥</div><div class="s-label">Total Staff</div><div class="s-value">{{ data.users | length }}</div></div>
+        <div class="stat-card"><div class="s-icon">₹</div><div class="s-label">Total Billed</div><div class="s-value" style="font-size:20px;">₹{{ data.billing | sum(attribute='amount') | int }}</div></div>
+    </div>
+
+    <!-- Admit New Patient -->
+    <div class="section">
+        <h3>➕ Admit New Patient</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Full Name</label><input id="p_name" placeholder="Patient full name"></div>
+            <div class="form-group"><label>Username</label><input id="p_user" placeholder="Login username"></div>
+            <div class="form-group"><label>Password</label><input id="p_pass" type="password" placeholder="Login password"></div>
+            <div class="form-group"><label>RFID Tag</label><input id="p_rfid" placeholder="e.g. RFID020"></div>
+            <div class="form-group"><label>Disease / Diagnosis</label><input id="p_disease" placeholder="Diagnosis"></div>
+            <div class="form-group"><label>Ward</label><input id="p_ward" placeholder="Ward A / B / C"></div>
+            <div class="form-group"><label>Initial Medication</label><input id="p_med" placeholder="Initial medication"></div>
+            <div class="form-group"><label>Assigned Doctor</label><input id="p_doc" placeholder="e.g. Dr. Kumar"></div>
+            <div class="form-group"><label>Admitted Date</label><input id="p_date" type="date"></div>
+            <div class="form-group"><label>Next Appointment</label><input id="p_appt" type="date"></div>
+        </div>
+        <button class="btn-success mt-14" onclick="addPatient()">✅ Admit Patient</button>
+        <p class="success-msg" id="add-success">✅ Patient admitted successfully!</p>
+    </div>
+
+    <!-- All Patients with Discharge -->
+    <div class="section">
+        <h3>🧑‍⚕️ All Patients — Admission Records</h3>
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Disease</th><th>Ward</th><th>Doctor</th><th>Admitted</th><th>Discharge</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody>
+            {% for p in data.patients %}
+            <tr>
+                <td style="font-family:monospace;color:rgba(255,255,255,0.4);">{{ p.id }}</td>
+                <td style="font-weight:500;color:white;">{{ p.name }}</td>
+                <td>{{ p.disease }}</td>
+                <td>{{ p.ward }}</td>
+                <td>{{ p.doctor }}</td>
+                <td>{{ p.admitted_date }}</td>
+                <td>{{ p.discharge_date if p.discharge_date else '—' }}</td>
+                <td><span class="tag tag-{{ p.status }}">{{ p.status | upper }}</span></td>
+                <td>
+                    <button class="btn-primary btn-sm" onclick="viewSummary({{ p.id }},'{{ p.name }}','{{ p.disease }}','{{ p.ward }}','{{ p.doctor }}','{{ p.admitted_date }}','{{ p.discharge_date }}','{{ p.medication }}','{{ p.history }}','{{ p.status }}')">Summary</button>
+                    {% if p.status == 'admitted' %}
+                    <button class="btn-danger" style="margin-left:6px;" onclick="discharge({{ p.id }})">Discharge</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        <!-- Patient Summary Panel -->
+        <div class="patient-summary" id="patient-summary">
+            <h4>📋 Patient Summary</h4>
+            <div class="summary-grid" id="summary-grid"></div>
+        </div>
+    </div>
+
+    <!-- Add Staff -->
+    <div class="section">
+        <h3>👥 Add New Staff / Doctor</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Username</label><input id="s_user" placeholder="e.g. dr.arjun"></div>
+            <div class="form-group"><label>Password</label><input id="s_pass" type="password" placeholder="Set password"></div>
+            <div class="form-group"><label>Role</label>
+                <select id="s_role">
+                    <option value="doctor">Doctor</option>
+                    <option value="staff">Staff</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Staff Type</label>
+                <select id="s_type">
+                    <option value="Doctor">Doctor</option>
+                    <option value="Nurse">Nurse</option>
+                    <option value="Pharmacist">Pharmacist</option>
+                    <option value="Receptionist">Receptionist</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Specialization</label>
+                <select id="s_spec">
+                    <option value="Physician">Physician</option>
+                    <option value="Gynaecologist">Gynaecologist</option>
+                    <option value="Cardiologist">Cardiologist</option>
+                    <option value="Orthopaedic">Orthopaedic</option>
+                    <option value="Neurologist">Neurologist</option>
+                    <option value="Surgeon">Surgeon</option>
+                    <option value="General Nursing">General Nursing</option>
+                    <option value="ICU Nursing">ICU Nursing</option>
+                    <option value="Pharmacy">Pharmacy</option>
+                    <option value="Front Desk">Front Desk</option>
+                </select>
+            </div>
+            <div class="form-group"><label>RFID Tag</label><input id="s_rfid" placeholder="e.g. RFID020"></div>
+        </div>
+        <button class="btn-purple mt-14" onclick="addStaff()">➕ Add Staff Member</button>
+        <p class="success-msg" id="staff-success">✅ Staff added successfully!</p>
+    </div>
+
+    <!-- All Staff -->
+    <div class="section">
+        <h3>📋 All Staff & Users</h3>
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>ID</th><th>Display Name</th><th>Username</th><th>Role</th><th>Type</th><th>Specialization</th><th>RFID</th><th>Action</th></tr></thead>
+            <tbody>
+            {% for u in data.users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td style="font-weight:500;color:white;">{{ u.username.replace('.',' ').title() }}</td>
+                <td style="color:rgba(255,255,255,0.4);font-size:12px;">{{ u.username }}</td>
+                <td><span class="tag tag-{{ u.role }}">{{ u.role | upper }}</span></td>
+                <td>{{ u.staff_type }}</td>
+                <td style="color:rgba(255,255,255,0.45);">{{ u.specialization }}</td>
+                <td style="font-family:monospace;font-size:12px;color:rgba(123,47,247,0.8);">{{ u.rfid }}</td>
+                <td>
+                    {% if u.role != 'admin' %}
+                    <button class="btn-danger" onclick="removeStaff({{ u.id }})">🗑️ Remove</button>
+                    {% else %}<span style="font-size:12px;color:rgba(255,255,255,0.2);">Protected</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- Billing -->
+    <div class="section">
+        <h3>💰 Billing</h3>
+        <div class="form-grid">
+            <div class="form-group"><label>Patient ID</label><input id="b_pid" placeholder="Patient ID number"></div>
+            <div class="form-group"><label>Description</label><input id="b_desc" placeholder="e.g. Consultation Fee, X-Ray"></div>
+            <div class="form-group"><label>Amount (₹)</label><input id="b_amt" type="number" placeholder="e.g. 500"></div>
+        </div>
+        <button class="btn-primary mt-14" onclick="addBill()">➕ Add Bill Entry</button>
+        <p class="success-msg" id="bill-success">✅ Bill added!</p>
+        <div style="margin-top:20px;">
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Patient ID</th><th>Description</th><th>Amount</th><th>Date</th><th>Added By</th></tr></thead>
+            <tbody>
+            {% for b in data.billing %}
+            <tr>
+                <td>{{ b.patient_id }}</td>
+                <td>{{ b.description }}</td>
+                <td style="color:#38ef7d;font-weight:600;">₹{{ b.amount | int }}</td>
+                <td>{{ b.date }}</td>
+                <td>{{ b.added_by }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        <div class="billing-total">
+            <span class="bt-label">Total Revenue</span>
+            <span class="bt-amount">₹{{ data.billing | sum(attribute='amount') | int }}</span>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function addPatient() {
+    fetch('/add_patient', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            name: document.getElementById('p_name').value,
+            username: document.getElementById('p_user').value,
+            password: document.getElementById('p_pass').value,
+            rfid: document.getElementById('p_rfid').value,
+            disease: document.getElementById('p_disease').value,
+            ward: document.getElementById('p_ward').value,
+            medication: document.getElementById('p_med').value,
+            doctor: document.getElementById('p_doc').value,
+            admitted_date: document.getElementById('p_date').value,
+            next_appointment: document.getElementById('p_appt').value
+        })
+    }).then(() => {
+        document.getElementById('add-success').style.display = 'block';
+        setTimeout(() => location.reload(), 1500);
+    });
+}
+function discharge(id) {
+    if (!confirm('Discharge this patient today?')) return;
+    fetch('/discharge_patient', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({patient_id: id, date: new Date().toISOString().split('T')[0]})
+    }).then(() => location.reload());
+}
+function addStaff() {
+    fetch('/add_staff', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            username: document.getElementById('s_user').value,
+            password: document.getElementById('s_pass').value,
+            role: document.getElementById('s_role').value,
+            staff_type: document.getElementById('s_type').value,
+            specialization: document.getElementById('s_spec').value,
+            rfid: document.getElementById('s_rfid').value
+        })
+    }).then(() => {
+        document.getElementById('staff-success').style.display = 'block';
+        setTimeout(() => location.reload(), 1500);
+    });
+}
+function removeStaff(id) {
+    if (!confirm('Remove this staff member?')) return;
+    fetch('/remove_staff', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({user_id: id})
+    }).then(() => location.reload());
+}
+function addBill() {
+    fetch('/add_billing', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            patient_id: document.getElementById('b_pid').value,
+            description: document.getElementById('b_desc').value,
+            amount: document.getElementById('b_amt').value
+        })
+    }).then(() => {
+        document.getElementById('bill-success').style.display = 'block';
+        setTimeout(() => location.reload(), 1000);
+    });
+}
+function viewSummary(id, name, disease, ward, doctor, admitted, discharge, medication, history, status) {
+    let panel = document.getElementById('patient-summary');
+    let grid  = document.getElementById('summary-grid');
+    panel.style.display = 'block';
+    grid.innerHTML = `
+        <div class="summary-item"><b>Patient ID</b>${id}</div>
+        <div class="summary-item"><b>Name</b>${name}</div>
+        <div class="summary-item"><b>Disease / Case</b>${disease}</div>
+        <div class="summary-item"><b>Ward</b>${ward}</div>
+        <div class="summary-item"><b>Handling Doctor</b>${doctor}</div>
+        <div class="summary-item"><b>Current Medication</b>${medication}</div>
+        <div class="summary-item"><b>Admitted On</b>${admitted}</div>
+        <div class="summary-item"><b>Discharge Date</b>${discharge || 'Still Admitted'}</div>
+        <div class="summary-item"><b>Visit History</b>${history}</div>
+        <div class="summary-item"><b>Status</b>${status.toUpperCase()}</div>
+    `;
+    panel.scrollIntoView({behavior:'smooth', block:'center'});
+}
+</script>
+</body>
+</html>
