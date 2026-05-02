@@ -20,7 +20,7 @@ def get_db():
     return conn
 
 def get_db():
-    conn = psycopg2.connect(**DB_CONFIG)
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 def format_name(username):
