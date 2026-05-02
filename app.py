@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, jsonify, session
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
-
+ 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'hospital_secret_key')
  
@@ -14,10 +14,9 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 def get_db():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
-
+ 
 def format_name(username):
     return username.replace('.', ' ').title()
-
 # ── LOGIN ─────────────────────────────────────────────────────
 @app.route('/')
 def home():
