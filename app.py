@@ -19,10 +19,6 @@ def get_db():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
 
-def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
-
 def format_name(username):
     return username.replace('.', ' ').title()
 
