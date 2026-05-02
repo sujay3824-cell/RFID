@@ -2,19 +2,22 @@ from flask import Flask, render_template, request, redirect, jsonify, session
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
+import os
+from flask import Flask, render_template, request, redirect, jsonify, session
+import psycopg2
+import psycopg2.extras
+from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'hospital_secret_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'hospital_secret_key')
 
 latest_data = {}
 
-DB_CONFIG = {
-    "host":     "localhost",
-    "port":     5432,
-    "database": "hospital_db",
-    "user":     "postgres",
-    "password": "post2026"   # ← Change this
-}
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+def get_db():
+    conn = psycopg2.connect(DATABASE_URL)
+    return conn
 
 def get_db():
     conn = psycopg2.connect(**DB_CONFIG)
@@ -391,4 +394,4 @@ def add_billing():
     return jsonify({"status": "Bill added"})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
