@@ -1,7 +1,3 @@
-from flask import Flask, render_template, request, redirect, jsonify, session
-import psycopg2
-import psycopg2.extras
-from datetime import datetime
 import os
 from flask import Flask, render_template, request, redirect, jsonify, session
 import psycopg2
