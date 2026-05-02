@@ -12,9 +12,14 @@ latest_data = {}
 DATABASE_URL = os.environ.get('DATABASE_URL')
  
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = psycopg2.connect(
+        host="aws-1-ap-southeast-2.pooler.supabase.com",
+        port=6543,
+        database="postgres",
+        user="postgres.bunmjlewgbizarjcjhvv",
+        password=os.environ.get('DB_PASSWORD')
+    )
     return conn
- 
 def format_name(username):
     return username.replace('.', ' ').title()
 # ── LOGIN ─────────────────────────────────────────────────────
