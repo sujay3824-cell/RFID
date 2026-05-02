@@ -1,18 +1,23 @@
-import os
 from flask import Flask, render_template, request, redirect, jsonify, session
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'hospital_secret_key')
+app.secret_key = 'hospital_secret_key'
 
 latest_data = {}
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DB_CONFIG = {
+    "host":     "localhost",
+    "port":     5432,
+    "database": "hospital_db",
+    "user":     "postgres",
+    "password": "post2026"   # ← Change this
+}
 
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = psycopg2.connect(**DB_CONFIG)
     return conn
 
 def format_name(username):
@@ -122,21 +127,7 @@ def get_redirect(role, staff_type):
 def check_session():
     return 'user_id' in session
 
-# ── ADMIN DASHBOARD ───────────────────────────────────────────
-@app.route('/dashboard/admin')
-def dash_admin():
-    if not check_session() or session.get('role') != 'admin':
-        return redirect('/mode')
-    conn = get_db()
-    cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    data = {}
-    cur.execute("SELECT * FROM users ORDER BY role");    data['users']    = cur.fetchall()
-    cur.execute("SELECT * FROM patients ORDER BY admitted_date DESC"); data['patients'] = cur.fetchall()
-    cur.execute("SELECT * FROM billing ORDER BY date DESC");  data['billing']  = cur.fetchall()
-    conn.close()
-    return render_template('dashboard_admin.html',
-        display_name=session.get('display_name'),
-        specialization=session.get('specialization'), data=data)
+
 
 # ── DOCTOR DASHBOARD ──────────────────────────────────────────
 @app.route('/dashboard/doctor')
@@ -149,8 +140,8 @@ def dash_doctor():
     data    = {}
     cur.execute("SELECT * FROM appointments WHERE doctor_id=%s ORDER BY date", (user_id,))
     data['appointments'] = cur.fetchall()
-    doc_name = 'Dr. ' + session['username'].replace('dr.','').replace('dr ','').title().strip()
-    cur.execute("SELECT * FROM patients WHERE doctor=%s", (doc_name,))
+    name_part = session['username'].replace('dr.','').replace('dr ','').replace('.','').strip().title()
+    cur.execute("SELECT * FROM patients WHERE doctor ILIKE %s", ('%' + name_part + '%',))
     data['patients'] = cur.fetchall()
     conn.close()
     return render_template('dashboard_doctor.html',
@@ -386,4 +377,4 @@ def add_billing():
     return jsonify({"status": "Bill added"})
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
