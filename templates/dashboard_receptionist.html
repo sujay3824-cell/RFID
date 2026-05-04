@@ -289,7 +289,9 @@
 
 <script>
 function addPatient() {
-    fetch('/add_patient', { method:'POST', headers:{'Content-Type':'application/json'},
+    fetch('/add_patient', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
             name: document.getElementById('p_name').value,
             username: document.getElementById('p_user').value,
@@ -307,14 +309,23 @@ function addPatient() {
         setTimeout(() => location.reload(), 1500);
     });
 }
+
 function discharge(id) {
     if (!confirm('Discharge this patient today?')) return;
-    fetch('/discharge_patient', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({patient_id: id, date: new Date().toISOString().split('T')[0]})
+    fetch('/discharge_patient', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            patient_id: id,
+            date: new Date().toISOString().split('T')[0]
+        })
     }).then(() => location.reload());
 }
+
 function addStaff() {
-    fetch('/add_staff', { method:'POST', headers:{'Content-Type':'application/json'},
+    fetch('/add_staff', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
             username: document.getElementById('s_user').value,
             password: document.getElementById('s_pass').value,
@@ -328,14 +339,20 @@ function addStaff() {
         setTimeout(() => location.reload(), 1500);
     });
 }
+
 function removeStaff(id) {
     if (!confirm('Remove this staff member?')) return;
-    fetch('/remove_staff', { method:'POST', headers:{'Content-Type':'application/json'},
+    fetch('/remove_staff', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
         body: JSON.stringify({user_id: id})
     }).then(() => location.reload());
 }
+
 function addBill() {
-    fetch('/add_billing', { method:'POST', headers:{'Content-Type':'application/json'},
+    fetch('/add_billing', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
             patient_id: document.getElementById('b_pid').value,
             description: document.getElementById('b_desc').value,
@@ -346,76 +363,129 @@ function addBill() {
         setTimeout(() => location.reload(), 1000);
     });
 }
+
 function viewSummary(id, name, disease, ward, doctor, admitted, discharge, medication, history, status) {
     let panel = document.getElementById('patient-summary');
     let grid  = document.getElementById('summary-grid');
+
     panel.style.display = 'block';
+
     grid.innerHTML = `
         <div class="summary-item"><b>Patient ID</b>${id}</div>
         <div class="summary-item"><b>Name</b>${name}</div>
-        <div class="summary-item"><b>Disease / Case</b>${disease}</div>
+        <div class="summary-item"><b>Disease</b>${disease}</div>
         <div class="summary-item"><b>Ward</b>${ward}</div>
-        <div class="summary-item"><b>Handling Doctor</b>${doctor}</div>
-        <div class="summary-item"><b>Current Medication</b>${medication}</div>
-        <div class="summary-item"><b>Admitted On</b>${admitted}</div>
-        <div class="summary-item"><b>Discharge Date</b>${discharge || 'Still Admitted'}</div>
-        <div class="summary-item"><b>Visit History</b>${history}</div>
+        <div class="summary-item"><b>Doctor</b>${doctor}</div>
+        <div class="summary-item"><b>Medication</b>${medication}</div>
+        <div class="summary-item"><b>Admitted</b>${admitted}</div>
+        <div class="summary-item"><b>Discharge</b>${discharge || 'Still Admitted'}</div>
+        <div class="summary-item"><b>History</b>${history}</div>
         <div class="summary-item"><b>Status</b>${status.toUpperCase()}</div>
     `;
-    panel.scrollIntoView({behavior:'smooth', block:'center'});
 }
-</script>
-<!-- RFID Auto-close: when same card scanned again, go back -->
-        <script>
-       setInterval(async () => {
-    if (sessionStorage.getItem('loginMode') !== 'auto') return;  // ← ADD THIS LINE
-    const res  = await fetch('/data');
-    const data = await res.json();
-    if (Object.keys(data).length === 0) {
-        window.location.href = '/auto';
-    }
-}, 1500);
-        </script>
-<script>
+
+/* ---------------- APPOINTMENT ---------------- */
+
 async function loadDropdowns() {
     const res = await fetch('/get_dropdown_data');
     const data = await res.json();
 
-    const doctorSelect = document.getElementById('doctor_id');
-    const patientSelect = document.getElementById('patient_id');
+    const doc = document.getElementById('doctor_id');
+    const pat = document.getElementById('patient_id');
 
-    doctorSelect.innerHTML = "";
-    patientSelect.innerHTML = "";
+    doc.innerHTML = '';
+    pat.innerHTML = '';
 
     data.doctors.forEach(d => {
-        doctorSelect.innerHTML += `<option value="${d.id}">${d.username}</option>`;
+        let o = document.createElement('option');
+        o.value = d.id;
+        o.textContent = d.username;
+        doc.appendChild(o);
     });
 
     data.patients.forEach(p => {
-        patientSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+        let o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.name;
+        pat.appendChild(o);
     });
 }
 
-loadDropdowns();
+async function addAppointment() {
+    const doctor_id = document.getElementById('doctor_id').value;
+    const patient_id = document.getElementById('patient_id').value;
+    const date = document.getElementById('date').value;
+    const type = document.getElementById('type').value;
 
-function addAppointment() {
-    fetch('/add_appointment', {
+    const res = await fetch('/add_appointment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            doctor_id: document.getElementById('doctor_id').value,
-            patient_id: document.getElementById('patient_id').value,
-            date: document.getElementById('date').value,
-            type: document.getElementById('type').value,
-            assigned_by: "receptionist"
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
+        body: JSON.stringify({ doctor_id, patient_id, date, type })
+    });
+
+    const data = await res.json();
+
+    if (data.status === "ok") {
         document.getElementById('appt-success').style.display = 'block';
+    }
+}
+
+window.onload = loadDropdowns;
+</script>
+</script>
+<!-- RFID Auto-close: when same card scanned again, go back -->
+        <script>
+            async function loadDropdowns() {
+    const res = await fetch('/get_dropdown_data');
+    const data = await res.json();
+
+    const doc = document.getElementById('doctor_id');
+    const pat = document.getElementById('patient_id');
+
+    doc.innerHTML = '';
+    pat.innerHTML = '';
+
+    data.doctors.forEach(d => {
+        let o = document.createElement('option');
+        o.value = d.id;
+        o.textContent = d.username;
+        doc.appendChild(o);
+    });
+
+    data.patients.forEach(p => {
+        let o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.name;
+        pat.appendChild(o);
     });
 }
+
+async function addAppointment() {
+    const doctor_id = document.getElementById('doctor_id').value;
+    const patient_id = document.getElementById('patient_id').value;
+    const date = document.getElementById('date').value;
+    const type = document.getElementById('type').value;
+
+    const res = await fetch('/add_appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doctor_id, patient_id, date, type })
+    });
+
+    const data = await res.json();
+
+    if (data.status === "ok") {
+        document.getElementById('appt-success').style.display = 'block';
+    }
+}
+
+window.onload = loadDropdowns;
+        </script>
+        
+<script>
+
 </script>
+
     </body> 
 </html>
 </body>

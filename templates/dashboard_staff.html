@@ -188,18 +188,6 @@
                 <span class="save-ok" id="sc-success">✅ Saved!</span>
             </div>
         </div>
-        <select id="doctor_id">
-  <!-- doctors list -->
-</select>
-
-<select id="patient_id">
-  <!-- patients list -->
-</select>
-
-<input type="date" id="date">
-<input type="text" id="type" placeholder="Checkup / Emergency">
-
-<button onclick="addAppointment()">Assign</button>
     </div>
 </div>
 <script>
@@ -217,13 +205,16 @@ function startRfidScan() {
     document.getElementById('scanStatus').style.display = 'flex';
     rfidScanInterval = setInterval(async () => {
         try {
-            const res = await fetch('/data');
+            const res = await fetch('/scan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rfid: "AUTO" })
+});
             const data = await res.json();
-            if (data && data.rfid) {
-                stopRfidScan();
-                document.getElementById('manualInput').value = data.rfid;
-                doSearch(data.rfid);
-            }
+            if (data.status === "ok") {
+    stopRfidScan();
+    showPatient(data);
+}
         } catch(e) {}
     }, 800);
 }
@@ -294,6 +285,25 @@ function scanPatient() {
             <p>ID: ${data.patient_id}</p>
         `;
     });
+}
+function showPatient(data) {
+    const p = data.patient;
+
+    currentPatientId = p.id;
+
+    document.getElementById('rfid-result').style.display = 'block';
+
+    document.getElementById('r-name').innerText = p.name;
+    document.getElementById('r-disease').innerText = p.disease;
+    document.getElementById('r-ward').innerText = p.ward;
+    document.getElementById('r-history').innerText = p.history;
+    document.getElementById('r-doctor').innerText = p.doctor;
+    document.getElementById('r-med').innerText = p.medication;
+
+    const v = data.vitals;
+    document.getElementById('r-vitals').innerHTML = v
+        ? `BP: ${v.bp} | Pulse: ${v.pulse} | Temp: ${v.temperature}`
+        : "No vitals";
 }
         </script>
 <!-- RFID Auto-close: when same card scanned again, go back -->

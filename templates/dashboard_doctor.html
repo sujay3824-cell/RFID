@@ -158,7 +158,6 @@
         <div class="lookup-bar">
             <input id="manualInput" placeholder="Enter RFID tag, Patient ID, or name...">
             <button class="btn-primary" onclick="search()">Search</button>
-            <button onclick="scanPatient()">Scan Patient RFID</button>
             <button class="btn-scan" id="scanBtn" onclick="toggleRfidScan()">
                 <span id="scanBtnIcon">📡</span> <span id="scanBtnText">Scan RFID</span>
             </button>
@@ -263,10 +262,11 @@ function startRfidScan() {
 
 const data = await res.json();
 
-if (data && data.patient_id) {
+if (data.status === "ok") {
     stopRfidScan();
-    document.getElementById('manualInput').value = data.patient_id;
-    search();   // use your existing search function
+
+    // directly show result instead of manual search
+    handleScanResult(data);
 }
         } catch(e) {}
     }, 800);
@@ -284,14 +284,14 @@ function stopRfidScan() {
 
 function searchByRfid(rfid) {
     fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:rfid}) })
-    .then(r => r.json()).then(handleSearchResult);
+    .then(r => r.json()).then(data => handleScanResult(data));
 }
 
 function search() {
     let value = document.getElementById('manualInput').value.trim();
     if (!value) return;
     fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:value}) })
-    .then(r => r.json()).then(handleSearchResult);
+    .then(r => r.json()).then(data => handleScanResult(data));
 }
 
     let box = document.getElementById('rfid-result');
@@ -377,6 +377,28 @@ function addAppointment() {
             assigned_by: "nurse" // or receptionist
         })
     })
+}
+function handleScanResult(data) {
+    const patient = data.patient;
+
+    currentPatientId = patient.id;
+
+    document.getElementById('rfid-result').style.display = 'block';
+
+    document.getElementById('r-name').innerText = '👤 ' + patient.name;
+    document.getElementById('r-disease').innerText = patient.disease || '—';
+    document.getElementById('r-ward').innerText = patient.ward || '—';
+    document.getElementById('r-history').innerText = patient.history || '—';
+    document.getElementById('r-admitted').innerText = patient.admitted_date || '—';
+    document.getElementById('r-med').innerText = patient.medication || '—';
+
+    // vitals
+    const v = data.vitals;
+    document.getElementById('r-vitals').innerHTML = v
+        ? `🩸 BP: <b>${v.bp}</b> | 💗 Pulse: <b>${v.pulse}</b> | 🌡 ${v.temperature} | O₂ ${v.oxygen}%`
+        : "No vitals";
+
+    // prescriptions (optional)
 }
 </script>
 <!-- RFID Auto-close: when same card scanned again, go back -->

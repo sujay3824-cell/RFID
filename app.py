@@ -227,19 +227,70 @@ def scan():
     rfid = request.json['rfid']
 
     conn = get_db()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-    cur.execute("SELECT * FROM patients WHERE rfid = %s", (rfid,))
+    cur.execute("SELECT * FROM patients WHERE rfid=%s", (rfid,))
     patient = cur.fetchone()
 
-    if patient:
-        return jsonify({
-            "patient_id": patient[0],
-            "name": patient[1],
-            "age": patient[2]
-        })
-    else:
-        return jsonify({"error": "Patient not found"})
+    if not patient:
+        return jsonify({"status": "error", "message": "Patient not found"})
+
+    # Get extra data
+    cur.execute("SELECT * FROM vitals WHERE patient_id=%s ORDER BY id DESC LIMIT 1", (patient['id'],))
+    vitals = cur.fetchone()
+
+    cur.execute("SELECT * FROM prescriptions WHERE patient_id=%s ORDER BY id DESC", (patient['id'],))
+    prescriptions = cur.fetchall()
+
+    conn.close()
+
+    return jsonify({
+        "status": "ok",
+        "patient": patient,
+        "vitals": vitals,
+        "prescriptions": prescriptions
+    })
+@app.route('/get_dropdown_data')
+def get_dropdown_data():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur.execute("SELECT id, username FROM users WHERE role='doctor'")
+    doctors = cur.fetchall()
+
+    cur.execute("SELECT id, name FROM patients")
+    patients = cur.fetchall()
+
+    conn.close()
+
+    return jsonify({
+        "doctors": doctors,
+        "patients": patients
+    })
+
+# ── ADD APPOINTMENT API ────────────────────────────────
+@app.route('/add_appointment', methods=['POST'])
+def add_appointment():
+    data = request.json
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT name FROM patients WHERE id=%s", (data['patient_id'],))
+    p = cur.fetchone()
+
+    if not p:
+        return jsonify({"status": "error"})
+
+    cur.execute("""
+        INSERT INTO appointments (doctor_id, patient_name, date, type)
+        VALUES (%s, %s, %s, %s)
+    """, (data['doctor_id'], p[0], data['date'], data['type']))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "ok"})
 
 # ── MANUAL SEARCH ─────────────────────────────────────────────
 @app.route('/manual_search', methods=['POST'])
@@ -371,73 +422,6 @@ def add_billing():
          datetime.now().strftime('%Y-%m-%d'), session.get('display_name', 'Receptionist')))
     conn.commit(); conn.close()
     return jsonify({"status": "Bill added"})
-
-@app.route('/add_appointment', methods=['POST'])
-def add_appointment():
-    data = request.json
-
-    doctor_id = data['doctor_id']
-    patient_id = data['patient_id']
-    patient_name = data['patient_name']
-    date = data['date']
-    type_ = data['type']
-    assigned_by = data['assigned_by']  # nurse/receptionist
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("""
-        INSERT INTO appointments (doctor_id, patient_id, patient_name, date, type, assigned_by)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (doctor_id, patient_id, patient_name, date, type_, assigned_by))
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return jsonify({"status": "success"})
-@app.route('/get_dropdown_data')
-def get_dropdown_data():
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-    cur.execute("SELECT id, username FROM users WHERE role='doctor'")
-    doctors = cur.fetchall()
-
-    cur.execute("SELECT id, name FROM patients")
-    patients = cur.fetchall()
-
-    conn.close()
-
-    return jsonify({
-        "doctors": doctors,
-        "patients": patients
-    })
-    
-@app.route('/add_appointment', methods=['POST'])
-def add_appointment():
-    d = request.json
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("""
-        INSERT INTO appointments (doctor_id, patient_id, patient_name, date, type, assigned_by)
-        SELECT %s, %s, name, %s, %s, %s
-        FROM patients WHERE id = %s
-    """, (
-        d['doctor_id'],
-        d['patient_id'],
-        d['date'],
-        d['type'],
-        d['assigned_by'],
-        d['patient_id']
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
     app.run(debug=False)
