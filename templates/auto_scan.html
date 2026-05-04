@@ -221,8 +221,9 @@ function showActive(data) {
                 count--;
                 document.getElementById('countdown').innerText = count;
                 if (count <= 0) {
-                    clearInterval(redirectTimer);
-                    window.location.href = res.redirect;
+                clearInterval(redirectTimer);
+                sessionStorage.setItem('loginMode', 'auto');  // ← ADD THIS LINE
+                window.location.href = res.redirect;
                 }
             }, 1000);
         } else {

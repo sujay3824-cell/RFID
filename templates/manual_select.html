@@ -124,6 +124,7 @@ function submitManual() {
     .then(data => {
         document.getElementById('loading-msg').style.display = 'none';
         if (data.status === 'ok') {
+            sessionStorage.setItem('loginMode', 'manual');  // ← ADD THIS LINE
             window.location.href = data.redirect;
         } else {
             document.getElementById('error-msg').style.display = 'block';
