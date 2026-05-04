@@ -179,12 +179,13 @@ function startRfidScan() {
     rfidScanInterval = setInterval(async () => {
         try {
             const res = await fetch('/data');
-            const data = await res.json();
-            if (data && data.rfid) {
-                stopRfidScan();
-                document.getElementById('manualInput').value = data.rfid;
-                doSearch(data.rfid);
-            }
+const data = await res.json();
+
+if (data && data.rfid) {
+    stopRfidScan();
+    document.getElementById('manualInput').value = data.rfid;
+    searchByRfid(data.rfid);
+}
         } catch(e) {}
     }, 800);
 }

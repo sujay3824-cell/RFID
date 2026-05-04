@@ -31,7 +31,7 @@ def home():
 def login():
     username = request.form['username']
     password = request.form['password']
-    if username == 'kiosk' and password == 'hospital2025':
+    if username == 'kiosk' and password == 'hospital':
         session['kiosk'] = True
         return redirect('/mode')
     return render_template('login.html', error="Invalid credentials. Please try again.")
@@ -396,5 +396,48 @@ def add_appointment():
     conn.close()
 
     return jsonify({"status": "success"})
+@app.route('/get_dropdown_data')
+def get_dropdown_data():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur.execute("SELECT id, username FROM users WHERE role='doctor'")
+    doctors = cur.fetchall()
+
+    cur.execute("SELECT id, name FROM patients")
+    patients = cur.fetchall()
+
+    conn.close()
+
+    return jsonify({
+        "doctors": doctors,
+        "patients": patients
+    })
+    
+@app.route('/add_appointment', methods=['POST'])
+def add_appointment():
+    d = request.json
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO appointments (doctor_id, patient_id, patient_name, date, type, assigned_by)
+        SELECT %s, %s, name, %s, %s, %s
+        FROM patients WHERE id = %s
+    """, (
+        d['doctor_id'],
+        d['patient_id'],
+        d['date'],
+        d['type'],
+        d['assigned_by'],
+        d['patient_id']
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "ok"})
+
 if __name__ == '__main__':
     app.run(debug=False)

@@ -158,9 +158,12 @@
         <div class="lookup-bar">
             <input id="manualInput" placeholder="Enter RFID tag, Patient ID, or name...">
             <button class="btn-primary" onclick="search()">Search</button>
+            <button onclick="scanPatient()">Scan Patient RFID</button>
             <button class="btn-scan" id="scanBtn" onclick="toggleRfidScan()">
                 <span id="scanBtnIcon">📡</span> <span id="scanBtnText">Scan RFID</span>
             </button>
+            
+<div id="patientData"></div>
         </div>
         <div class="scan-status" id="scanStatus">
             <div class="scan-dot"></div>
@@ -252,13 +255,19 @@ function startRfidScan() {
 
     rfidScanInterval = setInterval(async () => {
         try {
-            const res = await fetch('/data');
-            const data = await res.json();
-            if (data && data.rfid) {
-                stopRfidScan();
-                document.getElementById('manualInput').value = data.rfid;
-                searchByRfid(data.rfid);
-            }
+            const res = await fetch('/scan', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rfid: "AUTO" })  // replace with real RFID if needed
+});
+
+const data = await res.json();
+
+if (data && data.patient_id) {
+    stopRfidScan();
+    document.getElementById('manualInput').value = data.patient_id;
+    search();   // use your existing search function
+}
         } catch(e) {}
     }, 800);
 }
@@ -354,6 +363,20 @@ function scanPatient() {
             <p>ID: ${data.patient_id}</p>
         `;
     });
+}
+function addAppointment() {
+    fetch('/add_appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            doctor_id: document.getElementById('doctor_id').value,
+            patient_id: document.getElementById('patient_id').value,
+            patient_name: "auto-fill if needed",
+            date: document.getElementById('date').value,
+            type: document.getElementById('type').value,
+            assigned_by: "nurse" // or receptionist
+        })
+    })
 }
 </script>
 <!-- RFID Auto-close: when same card scanned again, go back -->
