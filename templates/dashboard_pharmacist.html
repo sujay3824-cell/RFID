@@ -74,6 +74,20 @@
             border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white;
             font-size:13px; outline:none; font-family:inherit; }
         .update-row input::placeholder { color:rgba(255,255,255,0.25); }
+        .btn-scan { padding:10px 20px; background:linear-gradient(135deg,#00d4ff,#0066ff);
+            border:none; border-radius:9px; color:white; font-weight:700; font-size:13px;
+            cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px;
+            transition:all 0.2s; white-space:nowrap; }
+        .btn-scan:hover { transform:scale(1.03); box-shadow:0 0 18px rgba(0,212,255,0.4); }
+        .btn-scan.scanning { background:linear-gradient(135deg,#f107a3,#7b2ff7);
+            animation:pulse-scan 1s infinite; }
+        @keyframes pulse-scan { 0%,100%{box-shadow:0 0 8px rgba(241,7,163,0.4);}
+            50%{box-shadow:0 0 22px rgba(241,7,163,0.8);} }
+        .scan-status { font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;
+            display:none; align-items:center; gap:6px; }
+        .scan-dot { width:8px; height:8px; border-radius:50%; background:#f107a3;
+            animation:blink 0.8s infinite; }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
     </style>
 </head>
 <>
@@ -119,6 +133,13 @@
         <div class="lookup-bar">
             <input id="manualInput" placeholder="Enter RFID tag or Patient ID...">
             <button class="btn-purple" onclick="search()">Search</button>
+            <button class="btn-scan" id="scanBtn" onclick="toggleRfidScan()">
+                <span id="scanBtnIcon">📡</span> <span id="scanBtnText">Scan RFID</span>
+            </button>
+        </div>
+        <div class="scan-status" id="scanStatus">
+            <div class="scan-dot"></div>
+            <span>Waiting for RFID card... Hold card near reader</span>
         </div>
         <div class="result-box" id="rfid-result">
             <div class="result-name" id="r-name"></div>
@@ -144,9 +165,43 @@
 </div>
 <script>
 let currentPatientId = null;
+let rfidScanInterval = null;
+
+function toggleRfidScan() {
+    if (rfidScanInterval) { stopRfidScan(); } else { startRfidScan(); }
+}
+function startRfidScan() {
+    const btn = document.getElementById('scanBtn');
+    btn.classList.add('scanning');
+    document.getElementById('scanBtnIcon').innerText = '⏹';
+    document.getElementById('scanBtnText').innerText = 'Stop Scan';
+    document.getElementById('scanStatus').style.display = 'flex';
+    rfidScanInterval = setInterval(async () => {
+        try {
+            const res = await fetch('/data');
+            const data = await res.json();
+            if (data && data.rfid) {
+                stopRfidScan();
+                document.getElementById('manualInput').value = data.rfid;
+                doSearch(data.rfid);
+            }
+        } catch(e) {}
+    }, 800);
+}
+function stopRfidScan() {
+    clearInterval(rfidScanInterval); rfidScanInterval = null;
+    const btn = document.getElementById('scanBtn');
+    btn.classList.remove('scanning');
+    document.getElementById('scanBtnIcon').innerText = '📡';
+    document.getElementById('scanBtnText').innerText = 'Scan RFID';
+    document.getElementById('scanStatus').style.display = 'none';
+}
 function search() {
     let value = document.getElementById('manualInput').value.trim();
     if (!value) return;
+    doSearch(value);
+}
+function doSearch(value) {
     fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:value}) })
     .then(r => r.json()).then(data => {
         let box = document.getElementById('rfid-result');

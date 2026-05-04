@@ -74,6 +74,20 @@
         .med-current .mc-label { font-size:11px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
         .med-current .mc-value { font-size:15px; font-weight:600; color:#ffd700; }
         .save-ok { color:#38ef7d; font-size:13px; margin-left:10px; display:none; }
+        .btn-scan { padding:10px 20px; background:linear-gradient(135deg,#38ef7d,#11998e);
+            border:none; border-radius:9px; color:#080c14; font-weight:700; font-size:13px;
+            cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px;
+            transition:all 0.2s; white-space:nowrap; }
+        .btn-scan:hover { transform:scale(1.03); box-shadow:0 0 18px rgba(56,239,125,0.4); }
+        .btn-scan.scanning { background:linear-gradient(135deg,#ff6b6b,#f107a3); color:white;
+            animation:pulse-scan 1s infinite; }
+        @keyframes pulse-scan { 0%,100%{box-shadow:0 0 8px rgba(241,7,163,0.4);}
+            50%{box-shadow:0 0 22px rgba(241,7,163,0.8);} }
+        .scan-status { font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;
+            display:none; align-items:center; gap:6px; }
+        .scan-dot { width:8px; height:8px; border-radius:50%; background:#f107a3;
+            animation:blink 0.8s infinite; }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
     </style>
 </head>
 <body>
@@ -144,6 +158,13 @@
         <div class="lookup-bar">
             <input id="manualInput" placeholder="Enter RFID tag, Patient ID, or name...">
             <button class="btn-primary" onclick="search()">Search</button>
+            <button class="btn-scan" id="scanBtn" onclick="toggleRfidScan()">
+                <span id="scanBtnIcon">📡</span> <span id="scanBtnText">Scan RFID</span>
+            </button>
+        </div>
+        <div class="scan-status" id="scanStatus">
+            <div class="scan-dot"></div>
+            <span>Waiting for RFID card... Hold card near reader</span>
         </div>
         <div class="result-box" id="rfid-result">
             <div class="result-name" id="r-name"></div>
@@ -212,30 +233,76 @@
 
 <script>
 let currentPatientId = null;
+let rfidScanInterval = null;
+
+function toggleRfidScan() {
+    if (rfidScanInterval) {
+        stopRfidScan();
+    } else {
+        startRfidScan();
+    }
+}
+
+function startRfidScan() {
+    const btn = document.getElementById('scanBtn');
+    btn.classList.add('scanning');
+    document.getElementById('scanBtnIcon').innerText = '⏹';
+    document.getElementById('scanBtnText').innerText = 'Stop Scan';
+    document.getElementById('scanStatus').style.display = 'flex';
+
+    rfidScanInterval = setInterval(async () => {
+        try {
+            const res = await fetch('/data');
+            const data = await res.json();
+            if (data && data.rfid) {
+                stopRfidScan();
+                document.getElementById('manualInput').value = data.rfid;
+                searchByRfid(data.rfid);
+            }
+        } catch(e) {}
+    }, 800);
+}
+
+function stopRfidScan() {
+    clearInterval(rfidScanInterval);
+    rfidScanInterval = null;
+    const btn = document.getElementById('scanBtn');
+    btn.classList.remove('scanning');
+    document.getElementById('scanBtnIcon').innerText = '📡';
+    document.getElementById('scanBtnText').innerText = 'Scan RFID';
+    document.getElementById('scanStatus').style.display = 'none';
+}
+
+function searchByRfid(rfid) {
+    fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:rfid}) })
+    .then(r => r.json()).then(handleSearchResult);
+}
+
 function search() {
     let value = document.getElementById('manualInput').value.trim();
     if (!value) return;
     fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:value}) })
-    .then(r => r.json()).then(data => {
-        let box = document.getElementById('rfid-result');
-        if (data.error) { box.style.display='block'; box.innerHTML="<p style='color:#ff6b6b;padding:10px;'>❌ Patient not found.</p>"; return; }
-        currentPatientId = data.id;
-        box.style.display = 'block';
-        document.getElementById('r-name').innerText    = '👤 ' + data.name;
-        document.getElementById('r-disease').innerText = data.disease   || '—';
-        document.getElementById('r-ward').innerText    = data.ward      || '—';
-        document.getElementById('r-history').innerText = data.history   || '—';
-        document.getElementById('r-admitted').innerText= data.admitted_date || '—';
-        document.getElementById('r-med').innerText     = data.medication || '—';
-        let vBox = document.getElementById('r-vitals');
-        vBox.innerHTML = data.vitals
-            ? '🩸 BP: <b>'+data.vitals.bp+'</b> &nbsp;|&nbsp; 💗 Pulse: <b>'+data.vitals.pulse+'</b> &nbsp;|&nbsp; 🌡️ Temp: <b>'+data.vitals.temperature+'</b> &nbsp;|&nbsp; 💨 O₂: <b>'+data.vitals.oxygen+'%</b>'
-            : '<span style="color:rgba(255,255,255,0.3);">No vitals recorded yet.</span>';
-        let sBox = document.getElementById('r-scans');
-        sBox.innerHTML = data.scans && data.scans.length > 0
-            ? data.scans.map(s => '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔬 <b style="color:white;">'+s.scan_type+'</b>: '+s.scan_result+' <span style="color:rgba(255,255,255,0.3);font-size:12px;">('+s.uploaded_at+')</span></div>').join('')
-            : '<span style="color:rgba(255,255,255,0.3);">No scan reports yet.</span>';
-    });
+    .then(r => r.json()).then(handleSearchResult);
+}
+
+    let box = document.getElementById('rfid-result');
+    if (data.error) { box.style.display='block'; box.innerHTML="<p style='color:#ff6b6b;padding:10px;'>❌ Patient not found.</p>"; return; }
+    currentPatientId = data.id;
+    box.style.display = 'block';
+    document.getElementById('r-name').innerText    = '👤 ' + data.name;
+    document.getElementById('r-disease').innerText = data.disease   || '—';
+    document.getElementById('r-ward').innerText    = data.ward      || '—';
+    document.getElementById('r-history').innerText = data.history   || '—';
+    document.getElementById('r-admitted').innerText= data.admitted_date || '—';
+    document.getElementById('r-med').innerText     = data.medication || '—';
+    let vBox = document.getElementById('r-vitals');
+    vBox.innerHTML = data.vitals
+        ? '🩸 BP: <b>'+data.vitals.bp+'</b> &nbsp;|&nbsp; 💗 Pulse: <b>'+data.vitals.pulse+'</b> &nbsp;|&nbsp; 🌡️ Temp: <b>'+data.vitals.temperature+'</b> &nbsp;|&nbsp; 💨 O₂: <b>'+data.vitals.oxygen+'%</b>'
+        : '<span style="color:rgba(255,255,255,0.3);">No vitals recorded yet.</span>';
+    let sBox = document.getElementById('r-scans');
+    sBox.innerHTML = data.scans && data.scans.length > 0
+        ? data.scans.map(s => '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">🔬 <b style="color:white;">'+s.scan_type+'</b>: '+s.scan_result+' <span style="color:rgba(255,255,255,0.3);font-size:12px;">('+s.uploaded_at+')</span></div>').join('')
+        : '<span style="color:rgba(255,255,255,0.3);">No scan reports yet.</span>';
 }
 function updateMedication() {
     if (!currentPatientId) return alert('Search a patient first.');

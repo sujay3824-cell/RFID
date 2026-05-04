@@ -3,14 +3,14 @@ from flask import Flask, render_template, request, redirect, jsonify, session
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
-
+ 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'hospital_secret_key')
-
-# ── RFID State ────────────────────────────────────────────────
-latest_data  = {}
-current_rfid = None   # tracks which card is currently "open"
-
+ 
+latest_data = {}
+ 
+DATABASE_URL = os.environ.get('DATABASE_URL')
+ 
 def get_db():
     conn = psycopg2.connect(
         host="aws-1-ap-southeast-2.pooler.supabase.com",
@@ -20,10 +20,8 @@ def get_db():
         password=os.environ.get('DB_PASSWORD')
     )
     return conn
-
 def format_name(username):
     return username.replace('.', ' ').title()
-
 # ── LOGIN ─────────────────────────────────────────────────────
 @app.route('/')
 def home():
@@ -33,7 +31,7 @@ def home():
 def login():
     username = request.form['username']
     password = request.form['password']
-    if username == 'kiosk' and password == 'hospital':
+    if username == 'kiosk' and password == 'hospital2025':
         session['kiosk'] = True
         return redirect('/mode')
     return render_template('login.html', error="Invalid credentials. Please try again.")
@@ -128,6 +126,8 @@ def get_redirect(role, staff_type):
 def check_session():
     return 'user_id' in session
 
+
+
 # ── DOCTOR DASHBOARD ──────────────────────────────────────────
 @app.route('/dashboard/doctor')
 def dash_doctor():
@@ -221,90 +221,46 @@ def logout():
     session.clear()
     return redirect('/')
 
-# ── ESP32 RFID SCAN ───────────────────────────────────────────
-# Behaviour:
-#   1st scan of a card  → store data, open dashboard
-#   2nd scan SAME card  → clear data, close dashboard (toggle off)
-#   scan DIFFERENT card → replace data with new card immediately
+# ── ESP32 RFID ────────────────────────────────────────────────
 @app.route('/scan', methods=['POST'])
 def scan():
-    global latest_data, current_rfid
 
-    rfid = request.json.get('rfid', '').strip()
+    global latest_data
 
-    if not rfid:
-        return jsonify({"status": "error", "message": "No RFID provided"})
+    rfid = request.json['rfid']
 
-    # Same card scanned again → CLOSE session
-    if rfid == current_rfid:
-        latest_data  = {}
-        current_rfid = None
-        return jsonify({"status": "closed", "message": "Session closed"})
+    # CLEAR DASHBOARD
+    if rfid == "CLEAR":
+        latest_data = {}
+        return jsonify({"status": "cleared"})
 
-    # New or different card → look up in database
     conn = get_db()
-    cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
     cur.execute("SELECT * FROM patients WHERE rfid=%s", (rfid,))
     patient = cur.fetchone()
+
     cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
     user = cur.fetchone()
+
     conn.close()
 
-    # Card not registered at all
-    if not user and not patient:
-        latest_data  = {}
-        current_rfid = None
-        return jsonify({"status": "not found", "message": "Card not registered"})
-
-    # Build response data
-    new_data = {"rfid": rfid, "status": "ok"}
+    latest_data = {}
 
     if patient:
-        new_data["name"]       = patient['name']
-        new_data["disease"]    = patient['disease']
-        new_data["history"]    = patient['history']
-        new_data["medication"] = patient['medication']
-        new_data["ward"]       = patient['ward']
-        new_data["doctor"]     = patient['doctor']
-        new_data["type"]       = "patient"
+
+        latest_data = {
+            "name": patient['name'],
+            "disease": patient['disease'],
+            "history": patient['history'],
+            "medication": patient['medication']
+        }
 
     if user:
-        new_data["username"]   = user['username']
-        new_data["role"]       = user['role']
-        new_data["staff_type"] = user['staff_type']
-        if "name" not in new_data:
-            new_data["name"]   = format_name(user['username'])
-        if "type" not in new_data:
-            new_data["type"]   = user['role']
+        latest_data['rfid'] = rfid
 
-    # Save to global state
-    latest_data  = new_data
-    current_rfid = rfid
-
-    return jsonify({
-        "status": "ok",
-        "name":   new_data.get("name", ""),
-        "type":   new_data.get("type", "")
-    })
-
-
-# ── GET CURRENT SCAN DATA (polled by frontend every 1 sec) ────
-# Returns {} when no card is active → frontend shows waiting screen
-# Returns data when card is active → frontend shows dashboard
-@app.route('/data')
-def data():
-    return jsonify(latest_data)
-
-
-# ── CLEAR SCAN MANUALLY ───────────────────────────────────────
-# Called by frontend logout button or when user navigates away
-@app.route('/clear_scan', methods=['POST'])
-def clear_scan():
-    global latest_data, current_rfid
-    latest_data  = {}
-    current_rfid = None
-    return jsonify({"status": "cleared"})
-
+    return jsonify({"status": "ok"})
 
 # ── MANUAL SEARCH ─────────────────────────────────────────────
 @app.route('/manual_search', methods=['POST'])
@@ -465,6 +421,5 @@ def get_patients():
     patients = cur.fetchall()
     conn.close()
     return jsonify({"patients": [dict(p) for p in patients]})
-
 if __name__ == '__main__':
     app.run(debug=False)
