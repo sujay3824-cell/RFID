@@ -17,6 +17,8 @@
             border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.6);
             border-radius:8px; cursor:pointer; font-size:12px; font-family:inherit; }
         .scanner-wrap { text-align:center; padding:20px; }
+
+        /* ── Pulse ring ── */
         .pulse-ring { width:180px; height:180px; border-radius:50%;
             border:3px solid rgba(0,212,255,0.5);
             display:flex; align-items:center; justify-content:center;
@@ -25,105 +27,300 @@
             border-radius:50%; border:2px solid rgba(0,212,255,0.2); animation:ripple 2s infinite; }
         .pulse-ring::before { width:220px; height:220px; animation-delay:0.3s; }
         .pulse-ring::after  { width:260px; height:260px; animation-delay:0.6s; }
-        @keyframes pulse  { 0%,100%{border-color:rgba(0,212,255,0.5);} 50%{border-color:rgba(0,212,255,1);} }
-        @keyframes ripple { 0%{opacity:0.6;transform:scale(1);} 100%{opacity:0;transform:scale(1.3);} }
+        .pulse-ring.active  { border-color:rgba(56,239,125,0.8); animation:pulse-green 2s infinite; }
+        .pulse-ring.closed  { border-color:rgba(255,107,107,0.8); animation:pulse-red 1s infinite; }
+
+        @keyframes pulse       { 0%,100%{border-color:rgba(0,212,255,0.5);}  50%{border-color:rgba(0,212,255,1);} }
+        @keyframes pulse-green { 0%,100%{border-color:rgba(56,239,125,0.5);} 50%{border-color:rgba(56,239,125,1);} }
+        @keyframes pulse-red   { 0%,100%{border-color:rgba(255,107,107,0.5);} 50%{border-color:rgba(255,107,107,1);} }
+        @keyframes ripple      { 0%{opacity:0.6;transform:scale(1);} 100%{opacity:0;transform:scale(1.3);} }
+
         .scan-icon     { font-size:64px; }
         .scan-title    { font-size:28px; font-weight:700; color:white; margin-bottom:10px; }
         .scan-subtitle { font-size:15px; color:rgba(255,255,255,0.4); margin-bottom:40px; }
+
+        /* ── Status box ── */
         .status-box { background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.15);
             border-radius:16px; padding:20px 30px; max-width:400px; margin:0 auto; }
         .status-dot { width:10px; height:10px; border-radius:50%; background:#38ef7d;
             display:inline-block; margin-right:8px; animation:blink 1s infinite; }
+        .status-dot.red    { background:#ff6b6b; }
+        .status-dot.yellow { background:#ffd93d; }
         @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
         .status-text { font-size:14px; color:rgba(255,255,255,0.7); }
+
+        /* ── Result card ── */
         .scan-result { margin:24px auto 0; padding:20px 28px;
             background:rgba(56,239,125,0.08); border:1px solid rgba(56,239,125,0.25);
             border-radius:16px; max-width:400px; display:none; }
-        .scan-result .user-name { font-size:22px; font-weight:700; color:#38ef7d; margin-bottom:6px; }
-        .scan-result .user-role { font-size:14px; color:rgba(255,255,255,0.5); }
+        .scan-result .user-name  { font-size:22px; font-weight:700; color:#38ef7d; margin-bottom:6px; }
+        .scan-result .user-role  { font-size:14px; color:rgba(255,255,255,0.5); }
         .scan-result .redirect-msg { font-size:13px; color:rgba(255,255,255,0.4); margin-top:10px; }
+
+        /* ── Closed / reset card ── */
+        .closed-box { margin:24px auto 0; padding:16px 24px;
+            background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.25);
+            border-radius:16px; max-width:400px; color:#ff6b6b;
+            font-size:14px; display:none; text-align:center; }
+
+        /* ── Not found card ── */
         .error-box { margin:24px auto 0; padding:16px 24px;
             background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.25);
-            border-radius:16px; max-width:400px; color:#ff6b6b; font-size:14px; display:none; text-align:center; }
+            border-radius:16px; max-width:400px; color:#ff6b6b;
+            font-size:14px; display:none; text-align:center; }
+
         .manual-link { margin-top:30px; font-size:13px; color:rgba(255,255,255,0.3); }
         .manual-link a { color:#00d4ff; text-decoration:none; }
         .clock { margin-top:30px; font-size:12px; color:rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
+
 <div class="top-bar">
     <div class="brand">🏥 City Hospital — Auto Mode</div>
-    <button class="back-btn" onclick="window.location.href='/mode'">← Back</button>
+    <button class="back-btn" onclick="goBack()">← Back</button>
 </div>
+
 <div class="scanner-wrap">
-    <div class="pulse-ring"><div class="scan-icon">📡</div></div>
-    <div class="scan-title">Ready to Scan</div>
-    <div class="scan-subtitle">Place your RFID card near the reader</div>
+    <div class="pulse-ring" id="pulse-ring">
+        <div class="scan-icon" id="scan-icon">📡</div>
+    </div>
+    <div class="scan-title" id="scan-title">Ready to Scan</div>
+    <div class="scan-subtitle" id="scan-subtitle">Place your RFID card near the reader</div>
+
     <div class="status-box">
-        <span class="status-dot"></span>
+        <span class="status-dot" id="status-dot"></span>
         <span class="status-text" id="status-text">Waiting for RFID card...</span>
     </div>
+
+    <!-- Shown when card is recognised -->
     <div class="scan-result" id="scan-result">
         <div class="user-name" id="result-name"></div>
         <div class="user-role" id="result-role"></div>
         <div class="redirect-msg">Opening dashboard in <span id="countdown">3</span> seconds...</div>
     </div>
-    <div class="error-box" id="error-box">❌ RFID card not recognised. Please try again or use Manual mode.</div>
+
+    <!-- Shown when same card scanned again (session closed) -->
+    <div class="closed-box" id="closed-box">
+        🔒 Session closed. Scan your card again to re-enter.
+    </div>
+
+    <!-- Shown when card is not registered -->
+    <div class="error-box" id="error-box">
+        ❌ RFID card not recognised. Please register this card or use Manual mode.
+    </div>
+
     <div class="manual-link">Card not working? <a href="/manual">Switch to Manual Mode</a></div>
     <div class="clock" id="clock"></div>
 </div>
+
 <script>
-let lastScannedRfid = null;
-let scanning = true;
-setInterval(() => {
-    fetch('/data').then(r => r.json()).then(data => {
-        if (data.rfid && scanning) handleScan(data.rfid);
-    });
-}, 1500);
-function handleScan(rfid) {
-    scanning = false;
-    document.getElementById('status-text').innerText = 'Processing card...';
-    if (rfid === lastScannedRfid) {
-        lastScannedRfid = null;
-        document.getElementById('scan-result').style.display = 'none';
-        document.getElementById('error-box').style.display   = 'none';
-        document.getElementById('status-text').innerText = 'Session closed. Ready for next scan.';
-        setTimeout(() => { document.getElementById('status-text').innerText = 'Waiting for RFID card...'; scanning = true; }, 2000);
+// ── State ─────────────────────────────────────────────────────
+let state        = 'waiting';   // waiting | active | redirecting | cooldown
+let redirectTimer = null;
+let pollInterval  = null;
+let lastDataHash  = '';         // detect when backend data changes
+
+// ── Poll /data every 1 second ─────────────────────────────────
+// The backend /scan route handles all toggle logic.
+// Frontend just reads /data and reacts to what it gets.
+pollInterval = setInterval(pollData, 1000);
+
+async function pollData() {
+    try {
+        const res  = await fetch('/data');
+        const data = await res.json();
+
+        // Create a simple hash to detect changes
+        const hash = JSON.stringify(data);
+        if (hash === lastDataHash) return;  // nothing changed, skip
+        lastDataHash = hash;
+
+        handleDataChange(data);
+    } catch (e) {
+        console.error('Poll error:', e);
+    }
+}
+
+function handleDataChange(data) {
+    // ── Empty data = no active scan (waiting or session was closed) ──
+    if (!data || Object.keys(data).length === 0) {
+        if (state === 'active' || state === 'redirecting') {
+            // Was active, now cleared = same card scanned again (closed)
+            showClosed();
+        } else {
+            // Normal waiting state
+            showWaiting();
+        }
         return;
     }
+
+    // ── Data present = card is active ────────────────────────
+    if (data.status === 'ok') {
+        if (state === 'redirecting') return;  // already redirecting, ignore
+        showActive(data);
+    }
+
+    // ── Card not found ────────────────────────────────────────
+    if (data.status === 'not found') {
+        showError();
+    }
+}
+
+// ── UI States ─────────────────────────────────────────────────
+
+function showWaiting() {
+    state = 'waiting';
+    clearRedirectTimer();
+
+    setRing('');
+    setIcon('📡');
+    document.getElementById('scan-title').innerText    = 'Ready to Scan';
+    document.getElementById('scan-subtitle').innerText = 'Place your RFID card near the reader';
+    setStatus('green', 'Waiting for RFID card...');
+    hide('scan-result');
+    hide('closed-box');
+    hide('error-box');
+}
+
+function showActive(data) {
+    state = 'active';
+    clearRedirectTimer();
+
+    const name      = data.name      || 'Unknown';
+    const role      = data.role      || data.type || '';
+    const staffType = data.staff_type || '';
+    const roleLabel = staffType ? role.toUpperCase() + ' · ' + staffType : role.toUpperCase();
+
+    setRing('active');
+    setIcon('✅');
+    document.getElementById('scan-title').innerText    = 'Card Recognised!';
+    document.getElementById('scan-subtitle').innerText = 'Dashboard opening shortly...';
+    setStatus('green', 'Card recognised — loading dashboard...');
+
+    document.getElementById('result-name').innerText = '✅ ' + name;
+    document.getElementById('result-role').innerText = roleLabel;
+    show('scan-result');
+    hide('closed-box');
+    hide('error-box');
+
+    // Now call /rfid_auto to set Flask session and get redirect URL
+    state = 'redirecting';
     fetch('/rfid_auto', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({rfid: rfid})
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({rfid: data.rfid})
     })
     .then(r => r.json())
-    .then(data => {
-        if (data.status === 'ok') {
-            lastScannedRfid = rfid;
-            document.getElementById('result-name').innerText = '✅ ' + data.display_name;
-            document.getElementById('result-role').innerText = data.role.toUpperCase() + ' · ' + data.staff_type;
-            document.getElementById('scan-result').style.display = 'block';
-            document.getElementById('error-box').style.display   = 'none';
-            document.getElementById('status-text').innerText = 'Card recognised!';
+    .then(res => {
+        if (res.status === 'ok') {
+            // Countdown then redirect
             let count = 3;
-            let timer = setInterval(() => {
+            document.getElementById('countdown').innerText = count;
+            redirectTimer = setInterval(() => {
                 count--;
                 document.getElementById('countdown').innerText = count;
-                if (count <= 0) { clearInterval(timer); window.location.href = data.redirect; }
+                if (count <= 0) {
+                    clearInterval(redirectTimer);
+                    window.location.href = res.redirect;
+                }
             }, 1000);
         } else {
-            document.getElementById('error-box').style.display = 'block';
-            document.getElementById('status-text').innerText = 'Card not recognised. Try again.';
-            setTimeout(() => {
-                document.getElementById('error-box').style.display = 'none';
-                document.getElementById('status-text').innerText = 'Waiting for RFID card...';
-                scanning = true;
-            }, 3000);
+            showError();
         }
+    })
+    .catch(() => showError());
+}
+
+function showClosed() {
+    state = 'cooldown';
+    clearRedirectTimer();
+
+    setRing('closed');
+    setIcon('🔒');
+    document.getElementById('scan-title').innerText    = 'Session Closed';
+    document.getElementById('scan-subtitle').innerText = 'Scan your card again to re-enter';
+    setStatus('red', 'Session ended. Ready for next scan.');
+    hide('scan-result');
+    show('closed-box');
+    hide('error-box');
+
+    // After 3 seconds go back to waiting
+    setTimeout(showWaiting, 3000);
+}
+
+function showError() {
+    state = 'cooldown';
+    clearRedirectTimer();
+
+    setRing('closed');
+    setIcon('❌');
+    document.getElementById('scan-title').innerText    = 'Card Not Found';
+    document.getElementById('scan-subtitle').innerText = 'This card is not registered';
+    setStatus('red', 'Card not recognised. Try again.');
+    hide('scan-result');
+    hide('closed-box');
+    show('error-box');
+
+    // Clear backend data and go back to waiting after 3 seconds
+    fetch('/clear_scan', {method:'POST'});
+    setTimeout(showWaiting, 3000);
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+
+function setRing(cls) {
+    const ring = document.getElementById('pulse-ring');
+    ring.className = 'pulse-ring' + (cls ? ' ' + cls : '');
+}
+
+function setIcon(icon) {
+    document.getElementById('scan-icon').innerText = icon;
+}
+
+function setStatus(color, text) {
+    const dot = document.getElementById('status-dot');
+    dot.className = 'status-dot' + (color === 'red' ? ' red' : color === 'yellow' ? ' yellow' : '');
+    document.getElementById('status-text').innerText = text;
+}
+
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none';  }
+
+function clearRedirectTimer() {
+    if (redirectTimer) { clearInterval(redirectTimer); redirectTimer = null; }
+}
+
+// ── Back button — also clears backend scan data ───────────────
+function goBack() {
+    fetch('/clear_scan', {method:'POST'}).finally(() => {
+        window.location.href = '/mode';
     });
 }
-document.addEventListener('keydown', e => { if (e.key === 'F1') { let r = prompt('Test RFID:'); if (r) handleScan(r); } });
-function tick() { document.getElementById('clock').innerText = new Date().toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',day:'numeric',month:'short',year:'numeric'}); }
-tick(); setInterval(tick,1000);
+
+// ── F1 key = manual test (for debugging) ─────────────────────
+document.addEventListener('keydown', e => {
+    if (e.key === 'F1') {
+        e.preventDefault();
+        const rfid = prompt('Test RFID UID:');
+        if (!rfid) return;
+        fetch('/scan', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({rfid: rfid.trim()})
+        }).then(r => r.json()).then(d => console.log('Test scan result:', d));
+    }
+});
+
+// ── Clock ─────────────────────────────────────────────────────
+function tick() {
+    document.getElementById('clock').innerText = new Date().toLocaleString('en-IN', {
+        hour:'2-digit', minute:'2-digit', second:'2-digit',
+        day:'numeric', month:'short', year:'numeric'
+    });
+}
+tick();
+setInterval(tick, 1000);
 </script>
 </body>
 </html>
