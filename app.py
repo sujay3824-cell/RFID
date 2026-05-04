@@ -224,25 +224,43 @@ def logout():
 # ── ESP32 RFID ────────────────────────────────────────────────
 @app.route('/scan', methods=['POST'])
 def scan():
+
     global latest_data
+
     rfid = request.json['rfid']
+
+    # CLEAR DASHBOARD
+    if rfid == "CLEAR":
+        latest_data = {}
+        return jsonify({"status": "cleared"})
+
     conn = get_db()
-    cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
     cur.execute("SELECT * FROM patients WHERE rfid=%s", (rfid,))
     patient = cur.fetchone()
+
     cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
     user = cur.fetchone()
+
     conn.close()
+
+    latest_data = {}
+
     if patient:
-        latest_data = {"name": patient['name'], "disease": patient['disease'],
-                       "history": patient['history'], "medication": patient['medication']}
+
+        latest_data = {
+            "name": patient['name'],
+            "disease": patient['disease'],
+            "history": patient['history'],
+            "medication": patient['medication']
+        }
+
     if user:
         latest_data['rfid'] = rfid
-    return jsonify({"status": "ok"})
 
-@app.route('/data')
-def data():
-    return jsonify(latest_data)
+    return jsonify({"status": "ok"})
 
 # ── MANUAL SEARCH ─────────────────────────────────────────────
 @app.route('/manual_search', methods=['POST'])
