@@ -227,9 +227,6 @@
                 <button class="btn-primary mt-14" onclick="addScan()">🔬 Save Scan</button>
                 <span class="save-ok" id="sc-success">✅ Saved!</span>
             </div>
-            <button onclick="scanPatient()">Scan Patient RFID</button>
-
-<div id="patientData"></div>
         </div>
     </div>
 </div>
@@ -331,6 +328,7 @@ function addPrescription() {
         })
     }).then(() => { document.getElementById('rx-success').style.display='inline'; });
 }
+
 function addScan() {
     if (!currentPatientId) return alert('Search a patient first.');
     fetch('/add_scan', { method:'POST', headers:{'Content-Type':'application/json'},
