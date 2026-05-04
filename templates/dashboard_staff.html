@@ -188,6 +188,18 @@
                 <span class="save-ok" id="sc-success">✅ Saved!</span>
             </div>
         </div>
+        <select id="doctor_id">
+  <!-- doctors list -->
+</select>
+
+<select id="patient_id">
+  <!-- patients list -->
+</select>
+
+<input type="date" id="date">
+<input type="text" id="type" placeholder="Checkup / Emergency">
+
+<button onclick="addAppointment()">Assign</button>
     </div>
 </div>
 <script>
@@ -267,7 +279,22 @@ function addScan() {
             scan_type:document.getElementById('sc-type').value, scan_result:document.getElementById('sc-result').value})
     }).then(() => { document.getElementById('sc-success').style.display='inline'; });
 }
-
+function scanPatient() {
+    fetch('/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rfid: "AUTO" })  
+        // or actual RFID if ESP sends it
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('patientData').innerHTML = `
+            <p>Name: ${data.name}</p>
+            <p>Age: ${data.age}</p>
+            <p>ID: ${data.patient_id}</p>
+        `;
+    });
+}
         </script>
 <!-- RFID Auto-close: when same card scanned again, go back -->
         <script>

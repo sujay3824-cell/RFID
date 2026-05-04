@@ -355,3 +355,18 @@ function viewSummary(id, name, disease, ward, doctor, admitted, discharge, medic
 </html>
 </body>
 </html>
+
+function addAppointment() {
+    fetch('/add_appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            doctor_id: document.getElementById('doctor_id').value,
+            patient_id: document.getElementById('patient_id').value,
+            patient_name: "auto-fill if needed",
+            date: document.getElementById('date').value,
+            type: document.getElementById('type').value,
+            assigned_by: "nurse" // or receptionist
+        })
+    })
+}
