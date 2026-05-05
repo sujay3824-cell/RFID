@@ -52,17 +52,12 @@ def auto():
 
 @app.route('/rfid_auto', methods=['POST'])
 def rfid_auto():
-    global latest_data                          # ← ADD THIS
     rfid = request.json.get('rfid')
-    
-    latest_data = {'rfid': rfid}               # ← ADD THIS
-
     conn = get_db()
     cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
     user = cur.fetchone()
     conn.close()
-
     if user:
         session['user_id']        = user['id']
         session['username']       = user['username']
@@ -70,15 +65,6 @@ def rfid_auto():
         session['role']           = user['role']
         session['staff_type']     = user['staff_type']
         session['specialization'] = user['specialization']
-
-        latest_data = {                         # ← ADD THIS BLOCK
-            'rfid':       rfid,
-            'status':     'ok',
-            'name':       user['username'],
-            'role':       user['role'],
-            'staff_type': user['staff_type'],
-        }
-
         return jsonify({
             "status":       "ok",
             "display_name": format_name(user['username']),
@@ -86,8 +72,6 @@ def rfid_auto():
             "staff_type":   user['staff_type'],
             "redirect":     get_redirect(user['role'], user['staff_type'])
         })
-
-    latest_data = {'rfid': rfid, 'status': 'not found'}  # ← ADD THIS
     return jsonify({"status": "not found"})
 
 # ── MANUAL ────────────────────────────────────────────────────
@@ -240,26 +224,42 @@ def logout():
 # ── ESP32 RFID ────────────────────────────────────────────────
 @app.route('/scan', methods=['POST'])
 def scan():
+
     global latest_data
-    rfid = request.json.get('rfid', '')
+
+    rfid = request.json['rfid']
+
+    # CLEAR DASHBOARD
+    if rfid == "CLEAR":
+        latest_data = {}
+        return jsonify({"status": "cleared"})
 
     conn = get_db()
-    cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cur.execute("SELECT * FROM patients WHERE rfid=%s", (rfid,))
+    patient = cur.fetchone()
+
     cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
     user = cur.fetchone()
+
     conn.close()
 
-    if not user:
-        latest_data = {'rfid': rfid, 'status': 'not found'}  # ✅ add status
-        return jsonify({"status": "error", "message": "User not found"})
+    latest_data = {}
 
-    latest_data = {
-        'rfid':       rfid,
-        'status':     'ok',                        # ✅ add status
-        'name':       user['username'],
-        'role':       user['role'],
-        'staff_type': user['staff_type']
-    }
+    if patient:
+
+        latest_data = {
+            "name": patient['name'],
+            "disease": patient['disease'],
+            "history": patient['history'],
+            "medication": patient['medication']
+        }
+
+    if user:
+        latest_data['rfid'] = rfid
+
     return jsonify({"status": "ok"})
 
 # ── MANUAL SEARCH ─────────────────────────────────────────────
@@ -392,28 +392,34 @@ def add_billing():
          datetime.now().strftime('%Y-%m-%d'), session.get('display_name', 'Receptionist')))
     conn.commit(); conn.close()
     return jsonify({"status": "Bill added"})
-
-# ── ADD APPOINTMENT ───────────────────────────────────────────
+# ── ADD APPOINTMENT (Receptionist / Nurse) ────────────────────
 @app.route('/add_appointment', methods=['POST'])
 def add_appointment():
-    d    = request.json
-    conn = get_db()
-    cur  = conn.cursor()
-    # Fetch patient name automatically
-    cur.execute("SELECT name FROM patients WHERE id=%s", (d['patient_id'],))
-    row = cur.fetchone()
-    if not row:
-        conn.close()
-        return jsonify({"status": "error", "message": "Patient not found"})
-    patient_name = row[0]
-    assigned_by  = d.get('assigned_by', session.get('display_name', 'Staff'))
+    d = request.json
+    conn = get_db(); cur = conn.cursor()
     cur.execute(
-        "INSERT INTO appointments (doctor_id, patient_id, patient_name, date, type, assigned_by) VALUES (%s,%s,%s,%s,%s,%s)",
-        (d['doctor_id'], d['patient_id'], patient_name, d['date'], d['type'], assigned_by)
+        "INSERT INTO appointments (doctor_id, patient_name, date, type) VALUES (%s,%s,%s,%s)",
+        (d['doctor_id'], d['patient_name'], d['date'], d['type'])
     )
-    conn.commit()
-    conn.close()
-    return jsonify({"status": "ok"})
+    conn.commit(); conn.close()
+    return jsonify({"status": "Appointment added"})
 
+# ── GET ALL DOCTORS (for appointment form dropdown) ───────────
+@app.route('/get_doctors')
+def get_doctors():
+    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT id, username, specialization FROM users WHERE role='doctor' ORDER BY username")
+    doctors = cur.fetchall()
+    conn.close()
+    return jsonify({"doctors": [dict(d) for d in doctors]})
+
+# ── GET ALL PATIENTS (for appointment form dropdown) ──────────
+@app.route('/get_patients')
+def get_patients():
+    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT id, name FROM patients WHERE status='admitted' ORDER BY name")
+    patients = cur.fetchall()
+    conn.close()
+    return jsonify({"patients": [dict(p) for p in patients]})
 if __name__ == '__main__':
     app.run(debug=False)
