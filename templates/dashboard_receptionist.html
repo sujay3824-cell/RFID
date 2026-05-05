@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Receptionist Dashboard — City Hospital</title>
@@ -24,12 +24,9 @@
         .page-title span { color:#a78bfa; }
         .page-subtitle { font-size:13px; color:rgba(255,255,255,0.35); margin-bottom:28px; }
         .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
-        .stat-card { background:linear-gradient(135deg,#0d1b2a,#1a0a2e);
-            border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:20px 22px;
-            position:relative; overflow:hidden; transition:transform 0.2s; }
+        .stat-card { background:linear-gradient(135deg,#0d1b2a,#1a0a2e); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:20px 22px; position:relative; overflow:hidden; transition:transform 0.2s; }
         .stat-card:hover { transform:translateY(-2px); }
-        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
-            background:linear-gradient(90deg,#a78bfa,#7b2ff7); }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#a78bfa,#7b2ff7); }
         .stat-card .s-icon  { position:absolute; right:18px; top:18px; font-size:22px; opacity:0.25; }
         .stat-card .s-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
         .stat-card .s-value { font-size:34px; font-weight:700; color:#a78bfa; line-height:1; }
@@ -38,26 +35,20 @@
         .table-wrap { overflow-x:auto; }
         table { width:100%; border-collapse:collapse; }
         thead tr { background:rgba(123,47,247,0.08); }
-        th { padding:11px 14px; text-align:left; font-size:11px; font-weight:600;
-            color:#a78bfa; text-transform:uppercase; letter-spacing:0.6px; white-space:nowrap; }
-        td { padding:12px 14px; font-size:13px; color:rgba(255,255,255,0.75);
-            border-bottom:1px solid rgba(255,255,255,0.04); white-space:nowrap; }
+        th { padding:11px 14px; text-align:left; font-size:11px; font-weight:600; color:#a78bfa; text-transform:uppercase; letter-spacing:0.6px; white-space:nowrap; }
+        td { padding:12px 14px; font-size:13px; color:rgba(255,255,255,0.75); border-bottom:1px solid rgba(255,255,255,0.04); white-space:nowrap; }
         tbody tr:hover td { background:rgba(255,255,255,0.02); }
         tbody tr:last-child td { border-bottom:none; }
         .tag { display:inline-block; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:600; }
-        .tag-admin   { background:rgba(255,107,107,0.15); color:#ff6b6b; }
-        .tag-doctor  { background:rgba(0,212,255,0.15);   color:#00d4ff; }
-        .tag-staff   { background:rgba(56,239,125,0.15);  color:#38ef7d; }
-        .tag-patient { background:rgba(255,215,0,0.15);   color:#ffd700; }
-        .tag-admitted    { background:rgba(56,239,125,0.15); color:#38ef7d; }
-        .tag-discharged  { background:rgba(255,107,107,0.15); color:#ff6b6b; }
+        .tag-admin      { background:rgba(255,107,107,0.15); color:#ff6b6b; }
+        .tag-doctor     { background:rgba(0,212,255,0.15);   color:#00d4ff; }
+        .tag-staff      { background:rgba(56,239,125,0.15);  color:#38ef7d; }
+        .tag-patient    { background:rgba(255,215,0,0.15);   color:#ffd700; }
+        .tag-admitted   { background:rgba(56,239,125,0.15);  color:#38ef7d; }
+        .tag-discharged { background:rgba(255,107,107,0.15); color:#ff6b6b; }
         .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:12px; }
-        .form-group label { display:block; font-size:11px; color:rgba(255,255,255,0.4);
-            margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
-        .form-group input, .form-group select {
-            width:100%; padding:10px 13px; background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white;
-            font-size:13px; outline:none; font-family:inherit; transition:border-color 0.2s; }
+        .form-group label { display:block; font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
+        .form-group input, .form-group select { width:100%; padding:10px 13px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white; font-size:13px; outline:none; font-family:inherit; transition:border-color 0.2s; }
         .form-group input:focus, .form-group select:focus { border-color:rgba(123,47,247,0.4); }
         .form-group input::placeholder { color:rgba(255,255,255,0.25); }
         .form-group select option { background:#0d1520; }
@@ -69,13 +60,10 @@
         .btn-sm { padding:7px 14px; font-size:12px; }
         .mt-14 { margin-top:14px; }
         .success-msg { color:#38ef7d; font-size:13px; margin-top:10px; display:none; }
-        .billing-total { background:linear-gradient(135deg,rgba(56,239,125,0.1),rgba(17,153,142,0.1));
-            border:1px solid rgba(56,239,125,0.2); border-radius:12px; padding:16px 20px;
-            display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
-        .billing-total .bt-label { font-size:14px; color:rgba(255,255,255,0.6); }
+        .billing-total { background:linear-gradient(135deg,rgba(56,239,125,0.1),rgba(17,153,142,0.1)); border:1px solid rgba(56,239,125,0.2); border-radius:12px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
+        .billing-total .bt-label  { font-size:14px; color:rgba(255,255,255,0.6); }
         .billing-total .bt-amount { font-size:22px; font-weight:700; color:#38ef7d; }
-        .patient-summary { background:rgba(123,47,247,0.05); border:1px solid rgba(123,47,247,0.15);
-            border-radius:12px; padding:16px 20px; margin-top:16px; display:none; }
+        .patient-summary { background:rgba(123,47,247,0.05); border:1px solid rgba(123,47,247,0.15); border-radius:12px; padding:16px 20px; margin-top:16px; display:none; }
         .patient-summary h4 { color:#a78bfa; margin-bottom:12px; font-size:14px; }
         .summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
         .summary-item { font-size:13px; color:rgba(255,255,255,0.65); padding:6px 0; }
@@ -104,7 +92,7 @@
         <div class="stat-card"><div class="s-icon">₹</div><div class="s-label">Total Billed</div><div class="s-value" style="font-size:20px;">₹{{ data.billing | sum(attribute='amount') | int }}</div></div>
     </div>
 
-    <!-- Admit New Patient -->
+    <!-- ── ADMIT NEW PATIENT ──────────────────────────────────── -->
     <div class="section">
         <h3>➕ Admit New Patient</h3>
         <div class="form-grid">
@@ -122,34 +110,39 @@
         <button class="btn-success mt-14" onclick="addPatient()">✅ Admit Patient</button>
         <p class="success-msg" id="add-success">✅ Patient admitted successfully!</p>
     </div>
-    <h3>📅 Assign Appointment</h3>
 
-<div class="form-grid">
-    <div class="form-group">
-        <label>Doctor</label>
-        <select id="doctor_id"></select>
+    <!-- ── ASSIGN APPOINTMENT ─────────────────────────────────── -->
+    <div class="section">
+        <h3>📅 Assign Appointment</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Doctor</label>
+                <select id="doctor_id"></select>
+            </div>
+            <div class="form-group">
+                <label>Patient</label>
+                <select id="patient_id"></select>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="appt-date">
+            </div>
+            <div class="form-group">
+                <label>Type</label>
+                <select id="appt-type">
+                    <option value="Checkup">Checkup</option>
+                    <option value="OPD">OPD</option>
+                    <option value="Round">Round</option>
+                    <option value="Emergency">Emergency</option>
+                    <option value="OT">OT</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn-primary mt-14" onclick="addAppointment()">📅 Assign Appointment</button>
+        <p class="success-msg" id="appt-success">✅ Appointment added!</p>
     </div>
 
-    <div class="form-group">
-        <label>Patient</label>
-        <select id="patient_id"></select>
-    </div>
-
-    <div class="form-group">
-        <label>Date</label>
-        <input type="date" id="date">
-    </div>
-
-    <div class="form-group">
-        <label>Type</label>
-        <input type="text" id="type" placeholder="Checkup / Emergency">
-    </div>
-</div>
-
-<button class="btn-primary mt-14" onclick="addAppointment()">Assign Appointment</button>
-<p id="appt-success" style="display:none;color:#38ef7d;">✅ Appointment added!</p>
-
-    <!-- All Patients with Discharge -->
+    <!-- ── ALL PATIENTS ───────────────────────────────────────── -->
     <div class="section">
         <h3>🧑‍⚕️ All Patients — Admission Records</h3>
         <div class="table-wrap">
@@ -177,14 +170,13 @@
             </tbody>
         </table>
         </div>
-        <!-- Patient Summary Panel -->
         <div class="patient-summary" id="patient-summary">
             <h4>📋 Patient Summary</h4>
             <div class="summary-grid" id="summary-grid"></div>
         </div>
     </div>
 
-    <!-- Add Staff -->
+    <!-- ── ADD STAFF ──────────────────────────────────────────── -->
     <div class="section">
         <h3>👥 Add New Staff / Doctor</h3>
         <div class="form-grid">
@@ -224,7 +216,7 @@
         <p class="success-msg" id="staff-success">✅ Staff added successfully!</p>
     </div>
 
-    <!-- All Staff -->
+    <!-- ── ALL STAFF ──────────────────────────────────────────── -->
     <div class="section">
         <h3>📋 All Staff & Users</h3>
         <div class="table-wrap">
@@ -252,7 +244,7 @@
         </div>
     </div>
 
-    <!-- Billing -->
+    <!-- ── BILLING ─────────────────────────────────────────────── -->
     <div class="section">
         <h3>💰 Billing</h3>
         <div class="form-grid">
@@ -285,13 +277,12 @@
         </div>
         </div>
     </div>
-</div>
+</div><!-- /main -->
 
 <script>
+/* ── PATIENT ─────────────────────────────────────────────────── */
 function addPatient() {
-    fetch('/add_patient', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+    fetch('/add_patient', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
             name: document.getElementById('p_name').value,
             username: document.getElementById('p_user').value,
@@ -309,23 +300,33 @@ function addPatient() {
         setTimeout(() => location.reload(), 1500);
     });
 }
-
 function discharge(id) {
     if (!confirm('Discharge this patient today?')) return;
-    fetch('/discharge_patient', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-            patient_id: id,
-            date: new Date().toISOString().split('T')[0]
-        })
+    fetch('/discharge_patient', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({patient_id: id, date: new Date().toISOString().split('T')[0]})
     }).then(() => location.reload());
 }
+function viewSummary(id, name, disease, ward, doctor, admitted, discharge, medication, history, status) {
+    const panel = document.getElementById('patient-summary');
+    document.getElementById('summary-grid').innerHTML = `
+        <div class="summary-item"><b>Patient ID</b>${id}</div>
+        <div class="summary-item"><b>Name</b>${name}</div>
+        <div class="summary-item"><b>Disease / Case</b>${disease}</div>
+        <div class="summary-item"><b>Ward</b>${ward}</div>
+        <div class="summary-item"><b>Handling Doctor</b>${doctor}</div>
+        <div class="summary-item"><b>Current Medication</b>${medication}</div>
+        <div class="summary-item"><b>Admitted On</b>${admitted}</div>
+        <div class="summary-item"><b>Discharge Date</b>${discharge || 'Still Admitted'}</div>
+        <div class="summary-item"><b>Visit History</b>${history}</div>
+        <div class="summary-item"><b>Status</b>${status.toUpperCase()}</div>
+    `;
+    panel.style.display = 'block';
+    panel.scrollIntoView({behavior:'smooth', block:'center'});
+}
 
+/* ── STAFF ───────────────────────────────────────────────────── */
 function addStaff() {
-    fetch('/add_staff', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+    fetch('/add_staff', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
             username: document.getElementById('s_user').value,
             password: document.getElementById('s_pass').value,
@@ -339,20 +340,16 @@ function addStaff() {
         setTimeout(() => location.reload(), 1500);
     });
 }
-
 function removeStaff(id) {
     if (!confirm('Remove this staff member?')) return;
-    fetch('/remove_staff', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+    fetch('/remove_staff', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({user_id: id})
     }).then(() => location.reload());
 }
 
+/* ── BILLING ─────────────────────────────────────────────────── */
 function addBill() {
-    fetch('/add_billing', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+    fetch('/add_billing', { method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
             patient_id: document.getElementById('b_pid').value,
             description: document.getElementById('b_desc').value,
@@ -364,129 +361,46 @@ function addBill() {
     });
 }
 
-function viewSummary(id, name, disease, ward, doctor, admitted, discharge, medication, history, status) {
-    let panel = document.getElementById('patient-summary');
-    let grid  = document.getElementById('summary-grid');
-
-    panel.style.display = 'block';
-
-    grid.innerHTML = `
-        <div class="summary-item"><b>Patient ID</b>${id}</div>
-        <div class="summary-item"><b>Name</b>${name}</div>
-        <div class="summary-item"><b>Disease</b>${disease}</div>
-        <div class="summary-item"><b>Ward</b>${ward}</div>
-        <div class="summary-item"><b>Doctor</b>${doctor}</div>
-        <div class="summary-item"><b>Medication</b>${medication}</div>
-        <div class="summary-item"><b>Admitted</b>${admitted}</div>
-        <div class="summary-item"><b>Discharge</b>${discharge || 'Still Admitted'}</div>
-        <div class="summary-item"><b>History</b>${history}</div>
-        <div class="summary-item"><b>Status</b>${status.toUpperCase()}</div>
-    `;
-}
-
-/* ---------------- APPOINTMENT ---------------- */
-
+/* ── APPOINTMENT ─────────────────────────────────────────────── */
 async function loadDropdowns() {
-    const res = await fetch('/get_dropdown_data');
+    const res  = await fetch('/get_dropdown_data');
     const data = await res.json();
+    const dSel = document.getElementById('doctor_id');
+    const pSel = document.getElementById('patient_id');
+    dSel.innerHTML = '';
+    pSel.innerHTML = '';
+    data.doctors.forEach(d  => { dSel.innerHTML += `<option value="${d.id}">${d.username.replace(/\./g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>`; });
+    data.patients.forEach(p => { pSel.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
+}
+loadDropdowns();
 
-    const doc = document.getElementById('doctor_id');
-    const pat = document.getElementById('patient_id');
-
-    doc.innerHTML = '';
-    pat.innerHTML = '';
-
-    data.doctors.forEach(d => {
-        let o = document.createElement('option');
-        o.value = d.id;
-        o.textContent = d.username;
-        doc.appendChild(o);
-    });
-
-    data.patients.forEach(p => {
-        let o = document.createElement('option');
-        o.value = p.id;
-        o.textContent = p.name;
-        pat.appendChild(o);
+function addAppointment() {
+    const date = document.getElementById('appt-date').value;
+    if (!date) return alert('Please select a date.');
+    fetch('/add_appointment', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            doctor_id:   document.getElementById('doctor_id').value,
+            patient_id:  document.getElementById('patient_id').value,
+            date:        date,
+            type:        document.getElementById('appt-type').value,
+            assigned_by: 'receptionist'
+        })
+    }).then(r => r.json()).then(d => {
+        if (d.status === 'ok') { document.getElementById('appt-success').style.display = 'block'; }
     });
 }
-
-async function addAppointment() {
-    const doctor_id = document.getElementById('doctor_id').value;
-    const patient_id = document.getElementById('patient_id').value;
-    const date = document.getElementById('date').value;
-    const type = document.getElementById('type').value;
-
-    const res = await fetch('/add_appointment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ doctor_id, patient_id, date, type })
-    });
-
-    const data = await res.json();
-
-    if (data.status === "ok") {
-        document.getElementById('appt-success').style.display = 'block';
-    }
-}
-
-window.onload = loadDropdowns;
 </script>
-</script>
-<!-- RFID Auto-close: when same card scanned again, go back -->
-        <script>
-            async function loadDropdowns() {
-    const res = await fetch('/get_dropdown_data');
-    const data = await res.json();
 
-    const doc = document.getElementById('doctor_id');
-    const pat = document.getElementById('patient_id');
-
-    doc.innerHTML = '';
-    pat.innerHTML = '';
-
-    data.doctors.forEach(d => {
-        let o = document.createElement('option');
-        o.value = d.id;
-        o.textContent = d.username;
-        doc.appendChild(o);
-    });
-
-    data.patients.forEach(p => {
-        let o = document.createElement('option');
-        o.value = p.id;
-        o.textContent = p.name;
-        pat.appendChild(o);
-    });
-}
-
-async function addAppointment() {
-    const doctor_id = document.getElementById('doctor_id').value;
-    const patient_id = document.getElementById('patient_id').value;
-    const date = document.getElementById('date').value;
-    const type = document.getElementById('type').value;
-
-    const res = await fetch('/add_appointment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ doctor_id, patient_id, date, type })
-    });
-
-    const data = await res.json();
-
-    if (data.status === "ok") {
-        document.getElementById('appt-success').style.display = 'block';
-    }
-}
-
-window.onload = loadDropdowns;
-        </script>
-        
+<!-- Auto-logout when RFID removed (auto-login mode only) -->
 <script>
-
+setInterval(async () => {
+    if (sessionStorage.getItem('loginMode') !== 'auto') return;
+    try {
+        const res  = await fetch('/data');
+        const data = await res.json();
+        if (Object.keys(data).length === 0) { window.location.href = '/auto'; }
+    } catch(e) {}
+}, 1500);
 </script>
-
-    </body> 
-</html>
 </body>
 </html>

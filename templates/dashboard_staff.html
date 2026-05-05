@@ -25,12 +25,9 @@
         .page-title span { color:#38ef7d; }
         .page-subtitle { font-size:13px; color:rgba(255,255,255,0.35); margin-bottom:28px; }
         .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:28px; }
-        .stat-card { background:linear-gradient(135deg,#0d1b2a,#0d2a1b);
-            border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:20px 22px;
-            position:relative; overflow:hidden; transition:transform 0.2s; }
+        .stat-card { background:linear-gradient(135deg,#0d1b2a,#0d2a1b); border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:20px 22px; position:relative; overflow:hidden; transition:transform 0.2s; }
         .stat-card:hover { transform:translateY(-2px); }
-        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
-            background:linear-gradient(90deg,#38ef7d,#11998e); }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#38ef7d,#11998e); }
         .stat-card .s-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
         .stat-card .s-value { font-size:34px; font-weight:700; color:#38ef7d; }
         .section { background:#0d1520; border:1px solid rgba(255,255,255,0.06); border-radius:16px; padding:24px; margin-bottom:22px; }
@@ -43,13 +40,12 @@
         tbody tr:hover td { background:rgba(255,255,255,0.02); }
         tbody tr:last-child td { border-bottom:none; }
         .lookup-bar { display:flex; gap:10px; }
-        .lookup-bar input { flex:1; padding:11px 15px; background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white;
-            font-size:14px; outline:none; font-family:inherit; }
+        .lookup-bar input { flex:1; padding:11px 15px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white; font-size:14px; outline:none; font-family:inherit; }
         .lookup-bar input:focus { border-color:rgba(56,239,125,0.4); }
         .lookup-bar input::placeholder { color:rgba(255,255,255,0.25); }
         .btn-success { padding:10px 22px; background:linear-gradient(135deg,#11998e,#38ef7d); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
         .btn-primary { padding:10px 22px; background:linear-gradient(135deg,#00d4ff,#0066ff); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
+        .btn-purple  { padding:10px 22px; background:linear-gradient(135deg,#7b2ff7,#a78bfa); border:none; border-radius:9px; color:white; font-weight:600; font-size:13px; cursor:pointer; font-family:inherit; }
         .btn-sm { padding:7px 14px; font-size:12px; }
         .mt-14 { margin-top:14px; }
         .result-box { margin-top:18px; padding:20px; background:rgba(56,239,125,0.04); border:1px solid rgba(56,239,125,0.12); border-radius:12px; display:none; }
@@ -63,25 +59,17 @@
         .sub-section { margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.06); }
         .sub-section h4 { font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:12px; font-weight:500; text-transform:uppercase; }
         .mini-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
-        .mini-grid input, .mini-grid textarea { padding:9px 12px; background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; font-size:13px; outline:none; font-family:inherit; }
+        .mini-grid input, .mini-grid textarea { padding:9px 12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; font-size:13px; outline:none; font-family:inherit; }
         .mini-grid textarea { grid-column:span 2; resize:vertical; min-height:60px; }
         .mini-grid input::placeholder, .mini-grid textarea::placeholder { color:rgba(255,255,255,0.25); }
         .save-ok { color:#38ef7d; font-size:13px; margin-left:10px; display:none; }
-        .btn-scan { padding:10px 20px; background:linear-gradient(135deg,#00d4ff,#0066ff);
-            border:none; border-radius:9px; color:white; font-weight:700; font-size:13px;
-            cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:7px;
-            transition:all 0.2s; white-space:nowrap; }
-        .btn-scan:hover { transform:scale(1.03); box-shadow:0 0 18px rgba(0,212,255,0.4); }
-        .btn-scan.scanning { background:linear-gradient(135deg,#f107a3,#7b2ff7);
-            animation:pulse-scan 1s infinite; }
-        @keyframes pulse-scan { 0%,100%{box-shadow:0 0 8px rgba(241,7,163,0.4);}
-            50%{box-shadow:0 0 22px rgba(241,7,163,0.8);} }
-        .scan-status { font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;
-            display:none; align-items:center; gap:6px; }
-        .scan-dot { width:8px; height:8px; border-radius:50%; background:#38ef7d;
-            animation:blink 0.8s infinite; }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+        .form-group label { display:block; font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
+        .form-group input, .form-group select { width:100%; padding:10px 13px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:white; font-size:13px; outline:none; font-family:inherit; }
+        .form-group input:focus, .form-group select:focus { border-color:rgba(56,239,125,0.4); }
+        .form-group input::placeholder { color:rgba(255,255,255,0.25); }
+        .form-group select option { background:#0d1520; }
+        .appt-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; }
+        .success-msg { color:#38ef7d; font-size:13px; margin-top:10px; display:none; }
     </style>
 </head>
 <body>
@@ -107,7 +95,7 @@
         <div class="stat-card"><div class="s-label">Total Patients</div><div class="s-value">{{ data.patients | length }}</div></div>
     </div>
 
-    <!-- All Patients -->
+    <!-- ── ALL PATIENTS ───────────────────────────────────────── -->
     <div class="section">
         <h3>🧾 All Patients</h3>
         <div class="table-wrap">
@@ -129,20 +117,14 @@
         </div>
     </div>
 
-    <!-- Lookup -->
+    <!-- ── PATIENT LOOKUP (manual only — no RFID scan button) ── -->
     <div class="section">
-        <h3>📡 Patient Lookup — RFID / ID</h3>
+        <h3>🔍 Patient Lookup</h3>
         <div class="lookup-bar">
-            <input id="manualInput" placeholder="Enter RFID tag or Patient ID...">
+            <input id="manualInput" placeholder="Enter Patient ID or RFID tag..." onkeydown="if(event.key==='Enter') search()">
             <button class="btn-success" onclick="search()">Search</button>
-            <button class="btn-scan" id="scanBtn" onclick="toggleRfidScan()">
-                <span id="scanBtnIcon">📡</span> <span id="scanBtnText">Scan RFID</span>
-            </button>
         </div>
-        <div class="scan-status" id="scanStatus">
-            <div class="scan-dot"></div>
-            <span>Waiting for RFID card... Hold card near reader</span>
-        </div>
+
         <div class="result-box" id="rfid-result">
             <div class="result-name" id="r-name"></div>
             <div class="result-grid">
@@ -153,7 +135,7 @@
             </div>
             <div class="med-box">
                 <div class="ml">💊 Current Medication</div>
-                <div class="mv" id="r-med"></div>
+                <div class="mv" id="r-med">—</div>
             </div>
             <div class="sub-section">
                 <h4>💓 Latest Vitals</h4>
@@ -189,66 +171,72 @@
             </div>
         </div>
     </div>
-</div>
+
+    <!-- ── ASSIGN APPOINTMENT ─────────────────────────────────── -->
+    <div class="section">
+        <h3>📅 Assign Appointment to Doctor</h3>
+        <div class="appt-grid">
+            <div class="form-group">
+                <label>Doctor</label>
+                <select id="appt-doctor-id"></select>
+            </div>
+            <div class="form-group">
+                <label>Patient</label>
+                <select id="appt-patient-id"></select>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="appt-date">
+            </div>
+            <div class="form-group">
+                <label>Appointment Type</label>
+                <select id="appt-type">
+                    <option value="Checkup">Checkup</option>
+                    <option value="OPD">OPD</option>
+                    <option value="Round">Round</option>
+                    <option value="Emergency">Emergency</option>
+                    <option value="OT">OT</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn-primary mt-14" onclick="addAppointment()">📅 Assign Appointment</button>
+        <p class="success-msg" id="appt-success">✅ Appointment assigned successfully!</p>
+    </div>
+
+</div><!-- /main -->
+
 <script>
 let currentPatientId = null;
-let rfidScanInterval = null;
 
-function toggleRfidScan() {
-    if (rfidScanInterval) { stopRfidScan(); } else { startRfidScan(); }
-}
-function startRfidScan() {
-    const btn = document.getElementById('scanBtn');
-    btn.classList.add('scanning');
-    document.getElementById('scanBtnIcon').innerText = '⏹';
-    document.getElementById('scanBtnText').innerText = 'Stop Scan';
-    document.getElementById('scanStatus').style.display = 'flex';
-    rfidScanInterval = setInterval(async () => {
-        try {
-            const res = await fetch('/scan', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rfid: "AUTO" })
-});
-            const data = await res.json();
-            if (data.status === "ok") {
-    stopRfidScan();
-    showPatient(data);
-}
-        } catch(e) {}
-    }, 800);
-}
-function stopRfidScan() {
-    clearInterval(rfidScanInterval); rfidScanInterval = null;
-    const btn = document.getElementById('scanBtn');
-    btn.classList.remove('scanning');
-    document.getElementById('scanBtnIcon').innerText = '📡';
-    document.getElementById('scanBtnText').innerText = 'Scan RFID';
-    document.getElementById('scanStatus').style.display = 'none';
-}
+/* ── SEARCH ──────────────────────────────────────────────────── */
 function search() {
-    let value = document.getElementById('manualInput').value.trim();
+    const value = document.getElementById('manualInput').value.trim();
     if (!value) return;
-    doSearch(value);
-}
-function doSearch(value) {
     fetch('/manual_search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:value}) })
-    .then(r => r.json()).then(data => {
-        let box = document.getElementById('rfid-result');
-        if (data.error) { box.style.display='block'; box.innerHTML="<p style='color:#ff6b6b;'>❌ Not found.</p>"; return; }
-        currentPatientId = data.id; box.style.display='block';
-        document.getElementById('r-name').innerText    = '👤 ' + data.name;
-        document.getElementById('r-disease').innerText = data.disease  || '—';
-        document.getElementById('r-ward').innerText    = data.ward     || '—';
-        document.getElementById('r-history').innerText = data.history  || '—';
-        document.getElementById('r-doctor').innerText  = data.doctor   || '—';
-        document.getElementById('r-med').innerText     = data.medication || '—';
-        let vBox = document.getElementById('r-vitals');
-        vBox.innerHTML = data.vitals
-            ? '🩸 BP: <b>'+data.vitals.bp+'</b> | 💗 Pulse: <b>'+data.vitals.pulse+'</b> | 🌡️ Temp: <b>'+data.vitals.temperature+'</b> | 💨 O₂: <b>'+data.vitals.oxygen+'%</b>'
-            : '<span style="color:rgba(255,255,255,0.3);">No vitals yet.</span>';
-    });
+    .then(r => r.json()).then(showResult);
 }
+
+function showResult(data) {
+    const box = document.getElementById('rfid-result');
+    box.style.display = 'block';
+    if (data.error) {
+        box.innerHTML = "<p style='color:#ff6b6b;'>❌ Patient not found.</p>";
+        currentPatientId = null;
+        return;
+    }
+    currentPatientId = data.id;
+    document.getElementById('r-name').innerText    = '👤 ' + data.name;
+    document.getElementById('r-disease').innerText = data.disease    || '—';
+    document.getElementById('r-ward').innerText    = data.ward       || '—';
+    document.getElementById('r-history').innerText = data.history    || '—';
+    document.getElementById('r-doctor').innerText  = data.doctor     || '—';
+    document.getElementById('r-med').innerText     = data.medication || '—';
+    document.getElementById('r-vitals').innerHTML  = data.vitals
+        ? `🩸 BP: <b>${data.vitals.bp}</b> | 💗 Pulse: <b>${data.vitals.pulse}</b> | 🌡️ Temp: <b>${data.vitals.temperature}</b> | 💨 O₂: <b>${data.vitals.oxygen}%</b>`
+        : '<span style="color:rgba(255,255,255,0.3);">No vitals yet.</span>';
+}
+
+/* ── ACTIONS ─────────────────────────────────────────────────── */
 function addVitals() {
     if (!currentPatientId) return alert('Search a patient first.');
     fetch('/add_vitals', { method:'POST', headers:{'Content-Type':'application/json'},
@@ -270,51 +258,46 @@ function addScan() {
             scan_type:document.getElementById('sc-type').value, scan_result:document.getElementById('sc-result').value})
     }).then(() => { document.getElementById('sc-success').style.display='inline'; });
 }
-function scanPatient() {
-    fetch('/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rfid: "AUTO" })  
-        // or actual RFID if ESP sends it
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById('patientData').innerHTML = `
-            <p>Name: ${data.name}</p>
-            <p>Age: ${data.age}</p>
-            <p>ID: ${data.patient_id}</p>
-        `;
+
+/* ── APPOINTMENT ─────────────────────────────────────────────── */
+async function loadDropdowns() {
+    const res  = await fetch('/get_dropdown_data');
+    const data = await res.json();
+    const dSel = document.getElementById('appt-doctor-id');
+    const pSel = document.getElementById('appt-patient-id');
+    dSel.innerHTML = '';
+    pSel.innerHTML = '';
+    data.doctors.forEach(d  => { dSel.innerHTML += `<option value="${d.id}">${d.username.replace(/\./g,' ').replace(/\b\w/g,c=>c.toUpperCase())}</option>`; });
+    data.patients.forEach(p => { pSel.innerHTML += `<option value="${p.id}">${p.name}</option>`; });
+}
+loadDropdowns();
+
+function addAppointment() {
+    const date = document.getElementById('appt-date').value;
+    if (!date) return alert('Please select a date.');
+    fetch('/add_appointment', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+            doctor_id:   document.getElementById('appt-doctor-id').value,
+            patient_id:  document.getElementById('appt-patient-id').value,
+            date:        date,
+            type:        document.getElementById('appt-type').value,
+            assigned_by: 'nurse'
+        })
+    }).then(r => r.json()).then(d => {
+        if (d.status === 'ok') { document.getElementById('appt-success').style.display = 'block'; }
     });
 }
-function showPatient(data) {
-    const p = data.patient;
+</script>
 
-    currentPatientId = p.id;
-
-    document.getElementById('rfid-result').style.display = 'block';
-
-    document.getElementById('r-name').innerText = p.name;
-    document.getElementById('r-disease').innerText = p.disease;
-    document.getElementById('r-ward').innerText = p.ward;
-    document.getElementById('r-history').innerText = p.history;
-    document.getElementById('r-doctor').innerText = p.doctor;
-    document.getElementById('r-med').innerText = p.medication;
-
-    const v = data.vitals;
-    document.getElementById('r-vitals').innerHTML = v
-        ? `BP: ${v.bp} | Pulse: ${v.pulse} | Temp: ${v.temperature}`
-        : "No vitals";
-}
-        </script>
-<!-- RFID Auto-close: when same card scanned again, go back -->
-        <script>
-       setInterval(async () => {
-    if (sessionStorage.getItem('loginMode') !== 'auto') return;  // ← ADD THIS LINE
-    const res  = await fetch('/data');
-    const data = await res.json();
-    if (Object.keys(data).length === 0) {
-        window.location.href = '/auto';
-    }
+<!-- Auto-logout when RFID removed (auto-login mode only) -->
+<script>
+setInterval(async () => {
+    if (sessionStorage.getItem('loginMode') !== 'auto') return;
+    try {
+        const res  = await fetch('/data');
+        const data = await res.json();
+        if (Object.keys(data).length === 0) { window.location.href = '/auto'; }
+    } catch(e) {}
 }, 1500);
 </script>
 </body>
