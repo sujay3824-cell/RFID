@@ -251,36 +251,29 @@ def logout():
 # ── ESP32 → PATIENT LOOKUP (used by hardware to push a patient scan) ──
 @app.route('/scan', methods=['POST'])
 def scan():
-    """
-    ESP32 pushes a patient RFID here.
-    Stores it in latest_data so dashboard pollers can pick it up.
-    Returns patient info if found.
-    """
     global latest_data
     rfid = request.json.get('rfid', '')
-    latest_data = {'rfid': rfid}      # dashboards polling /data will pick this up
+    latest_data = {'rfid': rfid}
 
     conn = get_db()
     cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM patients WHERE rfid=%s", (rfid,))
-    patient = cur.fetchone()
 
-    if not patient:
+    # ✅ Check users table first (covers ALL roles)
+    cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
+    user = cur.fetchone()
+
+    if not user:
         conn.close()
-        return jsonify({"status": "error", "message": "Patient not found"})
+        return jsonify({"status": "error", "message": "User not found"})
 
-    cur.execute("SELECT * FROM vitals WHERE patient_id=%s ORDER BY id DESC LIMIT 1", (patient['id'],))
-    vitals = cur.fetchone()
-    cur.execute("SELECT * FROM prescriptions WHERE patient_id=%s ORDER BY id DESC", (patient['id'],))
-    prescriptions = cur.fetchall()
+    # If patient, also fetch patient details
+    patient_data = None
+    if user['role'] == 'patient':
+        cur.execute("SELECT * FROM patients WHERE id=%s", (user['id'],))
+        patient_data = cur.fetchone()
+
     conn.close()
-
-    return jsonify({
-        "status": "ok",
-        "patient": dict(patient),
-        "vitals":  dict(vitals) if vitals else None,
-        "prescriptions": [dict(p) for p in prescriptions]
-    })
+    return jsonify({"status": "ok", "user": dict(user), "patient": dict(patient_data) if patient_data else None})
 
 # ── MANUAL SEARCH (dashboard search box) ──────────────────────
 @app.route('/manual_search', methods=['POST'])
