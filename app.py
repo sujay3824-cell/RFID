@@ -392,35 +392,6 @@ def add_billing():
          datetime.now().strftime('%Y-%m-%d'), session.get('display_name', 'Receptionist')))
     conn.commit(); conn.close()
     return jsonify({"status": "Bill added"})
-# ── ADD APPOINTMENT (Receptionist / Nurse) ────────────────────
-@app.route('/add_appointment', methods=['POST'])
-def add_appointment():
-    d = request.json
-    conn = get_db(); cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO appointments (doctor_id, patient_name, date, type) VALUES (%s,%s,%s,%s)",
-        (d['doctor_id'], d['patient_name'], d['date'], d['type'])
-    )
-    conn.commit(); conn.close()
-    return jsonify({"status": "Appointment added"})
-
-# ── GET ALL DOCTORS (for appointment form dropdown) ───────────
-@app.route('/get_doctors')
-def get_doctors():
-    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT id, username, specialization FROM users WHERE role='doctor' ORDER BY username")
-    doctors = cur.fetchall()
-    conn.close()
-    return jsonify({"doctors": [dict(d) for d in doctors]})
-
-# ── GET ALL PATIENTS (for appointment form dropdown) ──────────
-@app.route('/get_patients')
-def get_patients():
-    conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT id, name FROM patients WHERE status='admitted' ORDER BY name")
-    patients = cur.fetchall()
-    conn.close()
-    return jsonify({"patients": [dict(p) for p in patients]})
 
 # ── ADD APPOINTMENT ───────────────────────────────────────────
 @app.route('/add_appointment', methods=['POST'])
