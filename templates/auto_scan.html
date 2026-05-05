@@ -10,7 +10,7 @@
             min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; }
         .top-bar { position:fixed; top:0; left:0; right:0;
             background:rgba(13,27,42,0.9); backdrop-filter:blur(10px);
-            border-bottom:1px solid rgba(0,212,255,0.1);
+            border-bottom:1px solid #00d4ff1a;
             padding:14px 30px; display:flex; justify-content:space-between; align-items:center; z-index:100; }
         .brand { font-size:18px; font-weight:700; color:#00d4ff; }
         .back-btn { padding:6px 14px; background:rgba(255,255,255,0.05);
@@ -264,7 +264,7 @@ function showError() {
     show('error-box');
 
     // Clear backend data and go back to waiting after 3 seconds
-    fetch('/clear_scan', {method:'POST'});
+    fetch('/clear_data', {method:'POST'});
     setTimeout(showWaiting, 3000);
 }
 
@@ -294,9 +294,9 @@ function clearRedirectTimer() {
 
 // ── Back button — also clears backend scan data ───────────────
 function goBack() {
-    fetch('/clear_scan', {method:'POST'}).finally(() => {
-        window.location.href = '/mode';
-    });
+    fetch('/clear_data', {method:'POST'}).finally(() => {
+    window.location.href = '/mode';
+});
 }
 
 // ── F1 key = manual test (for debugging) ─────────────────────
