@@ -52,12 +52,17 @@ def auto():
 
 @app.route('/rfid_auto', methods=['POST'])
 def rfid_auto():
+    global latest_data                          # ← ADD THIS
     rfid = request.json.get('rfid')
+    
+    latest_data = {'rfid': rfid}               # ← ADD THIS
+
     conn = get_db()
     cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
     user = cur.fetchone()
     conn.close()
+
     if user:
         session['user_id']        = user['id']
         session['username']       = user['username']
@@ -65,6 +70,15 @@ def rfid_auto():
         session['role']           = user['role']
         session['staff_type']     = user['staff_type']
         session['specialization'] = user['specialization']
+
+        latest_data = {                         # ← ADD THIS BLOCK
+            'rfid':       rfid,
+            'status':     'ok',
+            'name':       user['username'],
+            'role':       user['role'],
+            'staff_type': user['staff_type'],
+        }
+
         return jsonify({
             "status":       "ok",
             "display_name": format_name(user['username']),
@@ -72,6 +86,8 @@ def rfid_auto():
             "staff_type":   user['staff_type'],
             "redirect":     get_redirect(user['role'], user['staff_type'])
         })
+
+    latest_data = {'rfid': rfid, 'status': 'not found'}  # ← ADD THIS
     return jsonify({"status": "not found"})
 
 # ── MANUAL ────────────────────────────────────────────────────
