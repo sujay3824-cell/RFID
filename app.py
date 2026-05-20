@@ -224,43 +224,53 @@ def logout():
 # ── ESP32 RFID ────────────────────────────────────────────────
 @app.route('/scan', methods=['POST'])
 def scan():
-
     global latest_data
 
-    rfid = request.json['rfid']
+    rfid = request.json.get('rfid', '').strip().upper()
 
-    # CLEAR DASHBOARD
+    # CLEAR: ESP32 sends CLEAR when same card is scanned again
     if rfid == "CLEAR":
         latest_data = {}
         return jsonify({"status": "cleared"})
 
     conn = get_db()
-
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-    cur.execute("SELECT * FROM patients WHERE rfid=%s", (rfid,))
+    cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT * FROM patients WHERE UPPER(rfid)=%s", (rfid,))
     patient = cur.fetchone()
-
-    cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
+    cur.execute("SELECT * FROM users WHERE UPPER(rfid)=%s", (rfid,))
     user = cur.fetchone()
-
     conn.close()
 
-    latest_data = {}
+    # Always store rfid so dashboard scan button polling picks it up
+    latest_data = {"rfid": rfid}
 
     if patient:
+        latest_data.update({
+            "name":       patient["name"],
+            "disease":    patient["disease"],
+            "history":    patient["history"],
+            "medication": patient["medication"]
+        })
 
-        latest_data = {
-            "name": patient['name'],
-            "disease": patient['disease'],
-            "history": patient['history'],
-            "medication": patient['medication']
-        }
-
-    if user:
-        latest_data['rfid'] = rfid
+    # If no one is logged in yet, treat as auto-login scan
+    if user and not check_session():
+        session["user_id"]        = user["id"]
+        session["username"]       = user["username"]
+        session["display_name"]   = format_name(user["username"])
+        session["role"]           = user["role"]
+        session["staff_type"]     = user["staff_type"]
+        session["specialization"] = user["specialization"]
+        return jsonify({
+            "status":   "ok",
+            "redirect": get_redirect(user["role"], user["staff_type"])
+        })
 
     return jsonify({"status": "ok"})
+
+# ── GET LATEST RFID DATA (polled by dashboard Scan button) ─────
+@app.route("/data")
+def data():
+    return jsonify(latest_data)
 
 # ── MANUAL SEARCH ─────────────────────────────────────────────
 @app.route('/manual_search', methods=['POST'])
