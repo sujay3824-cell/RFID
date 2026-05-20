@@ -62,20 +62,31 @@ def rfid_auto():
     user = cur.fetchone()
     conn.close()
     if user:
-        session['user_id']        = user['id']
-        session['username']       = user['username']
-        session['display_name']   = format_name(user['username'])
-        session['role']           = user['role']
-        session['staff_type']     = user['staff_type']
-        session['specialization'] = user['specialization']
-        return jsonify({
-            "status":       "ok",
-            "display_name": format_name(user['username']),
-            "role":         user['role'],
-            "staff_type":   user['staff_type'],
-            "redirect":     get_redirect(user['role'], user['staff_type'])
-        })
-    return jsonify({"status": "not found"})
+
+    latest_data.clear()
+
+    latest_data.update({
+        "status": "ok",
+        "rfid": rfid_upper,
+        "name": format_name(user['username']),
+        "role": user['role'],
+        "staff_type": user['staff_type']
+    })
+
+    session['user_id']        = user['id']
+    session['username']       = user['username']
+    session['display_name']   = format_name(user['username'])
+    session['role']           = user['role']
+    session['staff_type']     = user['staff_type']
+    session['specialization'] = user['specialization']
+
+    return jsonify({
+        "status":       "ok",
+        "display_name": format_name(user['username']),
+        "role":         user['role'],
+        "staff_type":   user['staff_type'],
+        "redirect":     get_redirect(user['role'], user['staff_type'])
+    })
 
 # ── MANUAL ────────────────────────────────────────────────────
 @app.route('/manual')
@@ -234,6 +245,10 @@ def scan():
     # CLEAR: ESP32 sends CLEAR when same card is scanned again
     if rfid == "CLEAR":
         latest_data = {}
+        @app.route('/data')
+def get_data():
+    global latest_data
+    return jsonify(latest_data)
         return jsonify({"status": "cleared"})
 
     conn = get_db()
@@ -277,6 +292,15 @@ def data():
 
 # ── CLEAR LATEST DATA ─────────────────────────────────────────
 @app.route("/clear_data", methods=["POST"])
+def clear_data():
+    global latest_data
+    latest_data = {}
+    return jsonify({"status": "cleared"})
+@app.route('/data')
+def get_data():
+    global latest_data
+    return jsonify(latest_data)
+@app.route('/clear_data', methods=['POST'])
 def clear_data():
     global latest_data
     latest_data = {}
