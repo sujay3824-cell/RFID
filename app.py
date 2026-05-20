@@ -57,7 +57,8 @@ def rfid_auto():
     rfid = request.json.get('rfid')
     conn = get_db()
     cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM users WHERE rfid=%s", (rfid,))
+    rfid_upper = rfid.strip().upper() if rfid else ""
+    cur.execute("SELECT * FROM users WHERE UPPER(rfid)=%s", (rfid_upper,))
     user = cur.fetchone()
     conn.close()
     if user:
@@ -273,6 +274,13 @@ def scan():
 @app.route("/data")
 def data():
     return jsonify(latest_data)
+
+# ── CLEAR LATEST DATA ─────────────────────────────────────────
+@app.route("/clear_data", methods=["POST"])
+def clear_data():
+    global latest_data
+    latest_data = {}
+    return jsonify({"status": "cleared"})
 
 # ── MANUAL SEARCH ─────────────────────────────────────────────
 @app.route('/manual_search', methods=['POST'])
